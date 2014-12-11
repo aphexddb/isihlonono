@@ -1,22 +1,25 @@
 ## COMPLEX OSCILLATOR
   
 ### Complex oscillator features:
-    * Multi-waveform oscillator
-    * Routable modulation LFO (amplitude/frequency)
+* Multi-waveform oscillator
+* Routable modulation LFO (amplitude/frequency)
 
 ### Complex oscillator variables:
-* Audio-rate oscillator frequency
-* Audio-rate oscillator amplitude
-* Mod LFO freq
-* Mod LFO amp
-    * AR osc waveform type
-    * Mod LFO waveform type
-    * FM/AM switch
+* Audio-rate oscillator:
+  * Frequency
+  * Amplitude
+  * Waveform type
+* Mod LFO:
+  * Frequency
+  * Amplitude
+  * Waveform type
+  * FM/AM routing switch
     
 ### Complex osc input:
-    * OSC (Open Sound Control) routing for each variable
+* OSC (Open Sound Control) routing for each variable
     
 ## FILTER
 
 ### Conductor controls:
-    * 
+* Player (oscillator instance/channel) grouping
+* Filter type
