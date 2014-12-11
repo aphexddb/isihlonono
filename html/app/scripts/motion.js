@@ -2,72 +2,103 @@
 
 angular.module('isihlononoApp')
 
-.factory('Motion', ['$rootScope',
-function ($rootScope) {
+.constant('GRAVITY', 9.80665)
+
+.factory('Motion', [ 'GRAVITY', function (GRAVITY) {
 
   // We return this object to anything injecting our service
-  var Service = {};
-  var motionCallback = null;
+  var Service = function() {
+    var self = this;
+    this.doTare = true;
+    this.tareValues = {x:0,y:0,z:0};
+    this.online = false;
+    this.callback = null;
+    // internal motion data state
+    this.data = {};
+    this.data.lastDM = new Date().getTime();
+    this.data.aX = 0.0;
+    this.data.aY = 0.0;
+    this.data.aZ = 0.0;
+    this.data.alpha = null;
+    this.data.beta = null;
+    this.data.gamma = null;
 
-  if (window.DeviceMotionEvent) {
-    window.addEventListener('devicemotion', function(ev) {
+    // allow external Tare on acceleration values
+    this.tare = function() {
+      this.doTare = true;
+    };
 
-      // get acceleration data
-      var acc = ev.accelerationIncludingGravity;
-      if ( ev.rotationRate ) {
-        // not all devices support rotation
-        if (ev.rotationRate.alpha != null) {
-          dmHdlr(acc.x, acc.y, acc.z, ev.rotationRate.alpha, ev.rotationRate.beta, ev.rotationRate.gamma);
-        } else {
-          dmHdlr(acc.x, acc.y, acc.z, null, null, null);
-        }
+    // if motion shoudl be captured
+    this.setOnline = function(onlineState) {
+      this.online = onlineState;
+    };
+
+    // what to do when motion acitivty occurs
+    this.setMotionCallback = function(callback) {
+      this.callback = callback;
+    };
+
+    this._tareVal = function(val, tare) {
+      return val - tare;
+    };
+
+    this._dmHdlr = function(aX, aY, aZ, alpha, beta, gamma) {
+      var currDM = new Date().getTime();
+
+      // only send data every 100ms
+      if (currDM < this.data.lastDM + 100) {return;}
+      this.data.lastDM = currDM;
+
+      // Tare Accel data
+      aX = aX ? this._tareVal(aX, this.tareValues.x) : 0.0;
+      aY = aY ? this._tareVal(aY, this.tareValues.y) : 0.0;
+      aZ = aZ ? this._tareVal(aZ, this.tareValues.z) : 0.0;
+
+      // Ensure all values are floats at fixed len
+      this.data.aX = aX.toFixed(3) * 1.0;
+      this.data.aY = aY.toFixed(3) * 1.0;
+      this.data.aZ = aZ.toFixed(3) * 1.0;
+      this.data.alpha = alpha ? alpha.toFixed(3) * 1.0 : 0.0;
+      this.data.beta = beta ? beta.toFixed(3) * 1.0 : 0.0;
+      this.data.gamma = gamma ? gamma.toFixed(3) * 1.0 : 0.0;
+
+      // fire callback if online and callback exists
+      if (this.callback !== null && this.online) {
+        this.callback([this.data.aX, this.data.aY, this.data.aZ,
+                       this.data.alpha, this.data.beta, this.data.gamma]);
       }
-    }, false);
-  } else {
-    console.error("devicemotion not supported on your device or browser.");
-  }
+    };
 
-  // internal motion data state
-  var motionData = {};
-  var motionDataArray = new Float32Array(6);
-  motionData.lastDM = new Date().getTime();
-  motionData.aX = 0.0;
-  motionData.aY = 0.0;
-  motionData.aZ = 0.0;
-  motionData.alpha = null;
-  motionData.beta = null;
-  motionData.gamma = null;
+    // if we support device motion capability
+    if (window.DeviceMotionEvent) {
+      window.addEventListener('devicemotion', function(ev) {
 
-  function dmHdlr(aX, aY, aZ, alpha, beta, gamma) {
-    var currDM = new Date().getTime();
+        // get acceleration data
+        var acc = ev.accelerationIncludingGravity;
 
-    // only send data every 100ms
-    if (currDM < motionData.lastDM + 100) {return;}
+        // use values to tare if a tare is requested
+        if (self.doTare) {
+          self.tareValues.x = acc.x;
+          self.tareValues.y = acc.y;
+          self.tareValues.z = acc.z;
+          self.doTare = false;
+        }
 
-    motionData.lastDM = currDM;
-
-    motionData.aX = aX ? aX.toFixed(3) : '?';
-    motionData.aY = aY ? aY.toFixed(3) : '?';
-    motionData.aZ = aZ ? aZ.toFixed(3) : '?';
-    motionData.alpha = alpha;
-    motionData.beta = beta;
-    motionData.gamma = gamma;
-
-    // fire callback
-    if (motionCallback !== null) {
-      motionCallback(JSON.stringify({
-        event: 'motion',
-        data: [motionData.aX, motionData.aY, motionData.aZ,
-              motionData.alpha, motionData.beta, motionData.gamme]
-      }));
+        if ( ev.rotationRate ) {
+          // not all devices support rotation
+          if (ev.rotationRate.alpha !== null) {
+            self._dmHdlr(acc.x, acc.y, acc.z, ev.rotationRate.alpha, ev.rotationRate.beta, ev.rotationRate.gamma);
+          } else {
+            self._dmHdlr(acc.x, acc.y, acc.z, null, null, null);
+          }
+        }
+      }, false);
+    } else {
+      console.error('devicemotion not supported on your device or browser.');
     }
   }
 
-  Service.setMotionCallback = function(callback) {
-    motionCallback = callback;
-  };
-
-  return Service;
+  return new Service;
 
 }])
 

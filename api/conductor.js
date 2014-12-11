@@ -7,17 +7,19 @@
 var Config = require('../config');
 var Util = require('util');
 var Performer = require('./performer');
+var Channel = require('./channel');
 var Ws = require('ws').Server;
+var Osc = require('node-osc');
 
 /*
  * Declare internals
  */
 
 var internals = {
+  maxOutputs: 10,
   sharedState: {
-    performerCount: 0,
-    performers: {},
-    positions: {}
+    outputs: [],
+    performers: {}
   }
 };
 
@@ -25,32 +27,77 @@ var internals = {
  * Api code
  */
 
-var initConductor = function() {
+var initConductorInternals = function() {
 
-  // todo init stuff
+  // push a message to all clients
   internals.broadcastCallback = function(data) {
     console.log('TODO! broadcast callback fired!', data);
+  };
+
+  // find an open output channel number
+  internals.allocateChannelNumber = function() {
+    internals.performerCount = Object.keys(internals.sharedState.performers).length;
+    var channelNumber = null;
+
+    // iterate through outputs and look for an open positions to add performer
+    for (var i=0; i<internals.maxOutputs; i++) {
+      if (internals.sharedState.outputs[i] === undefined) {
+        internals.sharedState.outputs[i] = {};
+        channelNumber = i;
+        break;
+      }
+    }
+    internals.server.log(['conductor'], Util.format('allocated channel %d', channelNumber));
+    return channelNumber;
+  };
+
+
+  // Creates an output channel
+  internals.allocateChannel = function(channelNumber, performerId, updateCallback, initCallback) {
+
+    internals.sharedState.performers[performerId] = new Performer.Performer(internals.server, performerId, updateCallback);
+
+    internals.sharedState.outputs[channelNumber] = {
+      channelNumber: channelNumber,
+      outputChannel: new Channel.out(channelNumber),
+      performer: internals.sharedState.performers[performerId]
+    };
+
+    // set performers channel #
+    internals.sharedState.performers[performerId].setChannelNumber(channelNumber);
+    internals.sharedState.performers[performerId].setActive(true);
+
+    // fire initial callback to performer
+    initCallback(channelNumber);
+
+    internals.server.log(['conductor'], Util.format('output created on channel %d', channelNumber));
+    return internals.sharedState.outputs[channelNumber];
+  };
+
+  // get a channel
+  internals.getChannel = function(channelNumber) {
+    return internals.sharedState.outputs[channelNumber];
+  };
+
+  // remove an output channel
+  internals.removeOutput = function(channelNumber) {
+    internals.server.log(['conductor'], Util.format('output channel %d removed', channelNumber));
+    delete internals.sharedState.outputs[channelNumber];
+  }
+
+  // remove a performer
+  internals.removePerformer = function(id) {
+    internals.server.log(['conductor'], Util.format('performer #%d removed', id));
+    delete internals.sharedState.performers[id];
   }
 
 };
 
 // start websocket server
 var start = function(server) {
+  initConductorInternals();
   internals.server = server;
   var clientId = 0;
-
-  // get the positions a performer is in, relative to other performers
-  var determinePostions = function() {
-    internals.sharedState.performerCount = Object.keys(internals.sharedState.performers).length;
-    internals.server.log(['conductor'], Util.format('now has %d performers', internals.sharedState.performerCount));
-
-    for (var p in Object.keys(internals.sharedState.performers)) {
-      //console.log(internals.sharedState.performers[p]);
-    }
-
-    console.log(Object.keys(internals.sharedState.performers));
-
-  };
 
   var wss = new Ws({port: Config.ws.port}, function() {
 
@@ -66,57 +113,53 @@ var start = function(server) {
       wss.broadcast(JSON.stringify(data));
     };
 
-    initConductor();
     internals.server.log(['conductor'], 'started on http://'+wss._server.address().address+':'+wss._server.address().port);
   });
 
 
   // init websocket on each client connection
   wss.on('connection', function(ws) {
+    var performer = {}; // performer object
     var thisId = ++clientId;
     internals.server.log(['conductor'], Util.format('websocket client #%d connected', thisId));
 
     // callback to send a performer it's current state
     var updateCallback = function() {
-      ws.send(JSON.stringify(p));
+      ws.send(JSON.stringify(performer));
     };
 
-    // get the position a performer is in, relative to other performers
-    var performerCount = Object.keys(internals.sharedState.performers).length;
-    var position = performerCount + 1;
+    var updatePerformerState = function(channelNumber) {
+      var performerState = {
+        performer: internals.getChannel(channelNumber).performer
+      };
+      ws.send(JSON.stringify(performerState));
+    };
 
-    // create a new performer
-    var p = new Performer.Performer(internals.server, position, updateCallback);
-    internals.sharedState.performers[thisId] = p;
-    determinePostions();
-    internals.server.log(['conductor'], Util.format('new performer created in position %d for client #%d', position, thisId));
-    updateCallback();
+    // allocate a new channel for the performer
+    var channelNumber = internals.allocateChannelNumber();
+    var channelOut = internals.allocateChannel(channelNumber, thisId, updateCallback, updatePerformerState);
 
     ws.on('message', function(message) {
       var obj = JSON.parse(message);
       if (obj['event'] === 'motion') {
-        // this is SUPER noisy to log
-        //internals.server.log(['conductor'], Util.format('motion! %s', obj['data']));
-        p.sendMotion(position, obj['data']);
+        internals.getChannel(channelNumber).outputChannel.sendMotion(obj['data']);
       } else {
-        internals.server.log(['conductor'], Util.format('websocket client #%d sent: %s', thisId, message));
+        //internals.server.log(['conductor'], Util.format('websocket client #%d sent: %s', thisId, message));
       }
     });
 
     // delete performer on close
     ws.on('close', function() {
       internals.server.log(['conductor'], Util.format('websocket client #%d disconnected', thisId));
-      delete internals.sharedState.performers[thisId];
-      internals.server.log(['conductor'], Util.format('deleted performer for client #%d', thisId));
-      determinePostions();
+      internals.removeOutput(channelNumber);
+      internals.removePerformer(thisId);
     });
 
     // delete performer on error
     ws.on('error', function(e) {
       internals.server.log(['conductor'], Util.format('websocket client #%d error: %s', thisId, e.message));
-      delete internals.sharedState.performers[thisId];
-      internals.server.log(['conductor'], Util.format('deleted performer for client #%d', thisId));
-      determinePostions();
+      internals.removeOutput(channelNumber);
+      internals.removePerformer(thisId);
     });
 
   });
@@ -125,11 +168,4 @@ var start = function(server) {
 
 };
 
-/*
-var setCallback = function(callback) {
-  internals.tweetOscCallback = callback;
-}
-*/
-
 module.exports.start = start;
-//module.exports.setCallback = setCallback;

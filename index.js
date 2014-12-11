@@ -14,6 +14,8 @@ Server.start(function () {
   // start upstream websocket server and access its shared state
   var conductorSharedState = Conductor.start(Server);
 
+  console.log(conductorSharedState);
+
   /*
   // OSC server
   var oscServer = new Osc.Server(Config.osc.server.port, Config.osc.server.host);

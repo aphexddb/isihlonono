@@ -51,9 +51,8 @@ function($rootScope, $state, $stateParams) {
 
 }])
 
-.controller('BodyController', ['$scope', '$rootScope',
-function ($scope, $rootScope) {
-  $scope.foo = 'bar'; // todo
+.controller('BodyController', ['$rootScope',
+function ($rootScope) {
   $rootScope.online = false;
 }])
 

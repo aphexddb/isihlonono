@@ -5,7 +5,6 @@
  */
 
 var Util = require('util');
-var Osc = require('node-osc');
 var Config = require('../config');
 
 /*
@@ -67,20 +66,24 @@ function Performer(server, id, updateCallback) {
   if (internals.server === null) {
     internals.server = server;
   }
+  internals.server.log(['performer'], Util.format('#%d created', id));
+
+  this.setChannelNumber = function(channelNumber) {
+    this.channelNumber = channelNumber;
+  };
+
+  this.setActive = function(state) {
+    this.active = state;
+  };
 
   this.id = id;
-  internals.server.log(['performer #'+this.id], 'created');
-
+  this.channelNumber = null;
   this.mood = internals.moodTypes[1];
   this.active = false;
   this.color = randomHue();
   this.altColor = opposingColor(this.color);
   this.motionData = {};
   this.updateCallback = updateCallback;
-
-  // OSC client
-  var oscClient = new Osc.Client(Config.osc.client.host, Config.osc.client.port);
-  internals.server.log(['performer #'+this.id], Util.format('opened OSC connection to', Config.osc.client.host+':'+Config.osc.client.port));
 
   this.sendMotion = function(tag, motionData) {
 

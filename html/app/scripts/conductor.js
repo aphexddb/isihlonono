@@ -20,10 +20,10 @@ function ($rootScope, $timeout) {
 
   // websocket state info
   var readyStates = {
-    0: 'websocket connection is not yet open',
-    1: 'websocket connection is open and ready to communicate',
-    2: 'websocket connection is in the process of closing',
-    3: 'websocket connection is closed or couldn\'t be opened'
+    0: 'websocket connection not yet open',
+    1: 'websocket connection open and ready to communicate',
+    2: 'websocket connection in the process of closing',
+    3: 'websocket connection closed or couldn\'t be opened'
   };
 
   var reconnect = function() {
@@ -31,7 +31,7 @@ function ($rootScope, $timeout) {
   };
 
   var connect = function() {
-    // Create our websocket object with the address to the websocket
+
     ws = new WebSocket(socketUrl);
 
     ws.onopen = function(){
@@ -67,20 +67,15 @@ Service.setOnlineCallback = function(callback) {
 
 Service.setCallback = function(callback) {
   callbackFunc = callback;
+};
+
+Service.connect = function() {
   connect();
 };
 
 Service.send = function(request) {
   if (online) {
     ws.send(JSON.stringify(request));
-  } else {
-    console.log('Conductor: unable to send request, offline');
-  }
-};
-
-Service.sendBinary = function(request) {
-  if (online) {
-    ws.send(request, { binary: true, mask: true });
   } else {
     console.log('Conductor: unable to send request, offline');
   }
