@@ -13,16 +13,36 @@ Making noise one grain at a time.
 
 ### Web hackery
 
-* Have a web app that allows multiple phones/laptops/etc to connect
-  * Accepts OSC traffic ex: /normalize 0.5
-  * Have global properties that are tunable using OSC. Ex: have a normalization, etc. value.
-  * Accepts websocket clients
-  * Track each unique web socket connection (sticky)
-  * Returns random hue/color data to identify each session (in the web UI)
-* Have a web page that
-  * emits accelerometer data as XYZ -> 0-127
-  * tracks acceleration (G's) -> 0-127
-  * displays state/info based on what the server tells it to
+* Have a CONDUCTOR server
+  * Allows multiple phones to connect to server via wifi/HTTP
+  * Accepts Websocket clients (8081)
+  * Accepts HTTP clients (80)
+  * Accepts OSC traffic (3333) ex: /normalize 0.5
+  * Sends OSC traffic (3334)
+    * Input for each PERFORMER that is ACTIVE
+    * ex: /performer1 10 20 30 40 50 60
+  * Maintains a state of each PERFORMER
+    * ACTIVE
+    * MOOD
+    * COLOR (hue/alpha/etc)
+    * Input State (xyz axis, acceleration, mouse xy)
+  * Conductor UI
+    * See each PERFORMER thats online
+      * See live input data for each PERFORMER
+      * Toggle ACTIVE on/off
+      * Select MOOD calm/indifferent/violent
+    * Returns COLOR data to each PERFORMER
+* Have a PERFORMER web app
+  * Displays ONLINE or OFFLINE
+  * displays MOOD that is set by CONDUCTOR
+    * animated GIF
+  * displays COLOR in the background
+  * displays input data
+    * Accelerometer
+    * some sort of visual to indicate movement
+  * streams data to the CONDUCTOR
+    * emits accelerometer data as XYZ -> 0-127
+    * tracks acceleration (G's) -> 0-127
 * Wild speculation thats probably hard
   * Capture audio from web page and send it to server (samples)
   
