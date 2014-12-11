@@ -31,3 +31,7 @@ Making noise one grain at a time.
 * Patch that accepts OSC data and routes it intelligently
   * Expected input: Acceleration (G force) as 0-127
   * Handle 2 input channels (two humans)
+
+## Reading
+
+* [HighC](http://highc.org/)
