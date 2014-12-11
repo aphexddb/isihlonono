@@ -41,15 +41,15 @@ Making noise one grain at a time.
     * Accelerometer
     * some sort of visual to indicate movement
   * streams data to the CONDUCTOR
-    * emits accelerometer data as XYZ -> 0-127
-    * tracks acceleration (G's) -> 0-127
+    * emits accelerometer data as XYZ -> 0-1
+    * tracks acceleration (G's) -> 0-1
 * Wild speculation thats probably hard
   * Capture audio from web page and send it to server (samples)
   
 ### Patch and Audio Wizardry
 
 * Patch that accepts OSC data and routes it intelligently
-  * Expected input: Acceleration (G force) as 0-127
+  * Expected input: Acceleration (G force) as 0-1
   * Handle 2 input channels (two humans)
 
 ## Reading
