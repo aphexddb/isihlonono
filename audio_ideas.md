@@ -1,4 +1,6 @@
 ## COMPLEX OSCILLATOR
+
+* [A Guide To using  IMU (Accelerometer and Gyroscope Devices)  in Applications](http://www.starlino.com/imu_guide.html).
   
 ### Complex oscillator features:
 * Multi-waveform oscillator
