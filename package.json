@@ -1,0 +1,40 @@
+{
+  "name": "isihlonono",
+  "version": "0.1.0",
+  "description": "Making noise one grain at a time",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:substantia/isihlonono.git"
+  },
+  "keywords": [
+    "audio",
+    "creative",
+    "performance",
+    "noise",
+    "websocket"
+  ],
+  "author": "Gardiner Allen <aphexddb@gmail.com>, John Tamm-Buckle <jtammbuckle@gmail.com>",
+  "license": "BSD",
+  "bugs": {
+    "url": "https://github.com/substantia/isihlonono/issues"
+  },
+  "homepage": "https://github.com/substantia/isihlonono",
+  "engines": {
+    "node": ">=0.10.x"
+  },
+  "dependencies": {
+    "colors": "^1.0.3",
+    "good": "^4.0.0",
+    "good-console": "^2.0.1",
+    "hapi": "^7.5.2",
+    "hoek": "^2.9.0",
+    "node-osc": "^0.3.0",
+    "osc-min": "^0.2.0",
+    "ws": "^0.5.0"
+  }
+}
