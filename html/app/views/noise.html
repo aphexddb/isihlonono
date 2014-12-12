@@ -1,0 +1,11 @@
+<div ng-show="online">
+  <div ng-show="conductorOnline">
+    YOU ARE ONLINE!!!
+  </div>
+  <div ng-hide="conductorOnline" class="text-center">
+    <button class="btn btn-lg btn-default" ng-click="conduct()">Conduct</button>
+  </div>
+</div>
+<div ng-hide="online" class="text-center">
+  <h3>Linking to Performers...</h3>
+</div>

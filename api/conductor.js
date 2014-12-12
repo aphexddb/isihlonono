@@ -140,11 +140,15 @@ var start = function(server) {
     var channelOut = internals.allocateChannel(channelNumber, thisId, updateCallback, updatePerformerState);
 
     ws.on('message', function(message) {
+      console.log('received message',message);
       var obj = JSON.parse(message);
       if (obj['event'] === 'motion') {
         internals.getChannel(channelNumber).outputChannel.sendMotion(obj['data']);
+      } else if (obj['event'] === 'conductorOnline') {
+        // TODO
+        ws.send(JSON.stringify({conductorOnline: true}));
       } else {
-        //internals.server.log(['conductor'], Util.format('websocket client #%d sent: %s', thisId, message));
+        internals.server.log(['conductor'], Util.format('websocket client #%d sent: %s', thisId, message));
       }
     });
 

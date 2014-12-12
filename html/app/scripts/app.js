@@ -16,6 +16,7 @@ function ($stateProvider, $urlRouterProvider) {
   // basic routing
   $urlRouterProvider
   .when('', '/')
+  .otherwise('/404')
   .rule(function($injector, $location) {
     // FIX for trailing slashes. Gracefully "borrowed" from https://github.com/angular-ui/ui-router/issues/50
     var path = $location.path();
@@ -30,10 +31,19 @@ function ($stateProvider, $urlRouterProvider) {
     abstrct: true,
     templateUrl: 'views/app.html'
   })
+  .state('app.404', {
+    url: '/404',
+    templateUrl: 'views/404.html'
+  })
   .state('app.home', {
     url: '/',
     templateUrl: 'views/home.html',
     controller: 'HomeCtrl'
+  })
+  .state('app.noise', {
+    url: '/noise',
+    templateUrl: 'views/noise.html',
+    controller: 'NoiseCtrl'
   });
 
 }])

@@ -49,7 +49,9 @@ function ($rootScope, $timeout) {
     };
 
     ws.onmessage = function(message) {
-      callbackFunc(JSON.parse(message.data));
+      if (callbackFunc !== null) {
+        callbackFunc(JSON.parse(message.data));
+      }
     };
 
     /*
