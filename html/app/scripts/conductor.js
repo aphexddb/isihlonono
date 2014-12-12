@@ -10,7 +10,7 @@ function ($rootScope, $timeout) {
   var ws = null;
 
   var callbackOnline = null;
-  var online = false;
+  var conductorOnline = false;
 
   // We return this object to anything injecting our service
   var Service = {};
@@ -38,14 +38,14 @@ function ($rootScope, $timeout) {
       var readyState = event.currentTarget.readyState;
       console.log('Conductor:',readyStates[readyState]);
       callbackOnline(true);
-      online = true;
+      conductorOnline = true;
     };
 
     ws.onclose = function() {
       console.log('Conductor: websocket connection closed, will attempt to reconnect in',reconnectInterval/1000,'seconds');
       $timeout(reconnect, reconnectInterval);
       callbackOnline(false);
-      online = false;
+      conductorOnline = false;
     };
 
     ws.onmessage = function(message) {
@@ -74,10 +74,8 @@ Service.connect = function() {
 };
 
 Service.send = function(request) {
-  if (online) {
+  if (conductorOnline) {
     ws.send(JSON.stringify(request));
-  } else {
-    console.log('Conductor: unable to send request, offline');
   }
 };
 
