@@ -13,21 +13,7 @@ var Osc = require('node-osc');
 */
 
 var internals = {
-  isNumber: function(obj) {
-    return !isNaN(parseFloat(obj));
-  },
 
-  findTypes: function(arr) {
-    // make sure all motion data is a number
-    for (var i=0; i<arr.length; ++i) {
-      if (internals.isNumber(arr[i])) {
-        arr[i] = parseFloat(arr[i]);
-      } else {
-        arr[i] = 0;
-      }
-    }
-    return arr;
-  }
 };
 
 /*
@@ -41,14 +27,13 @@ var out = function(channelNumber) {
 
   // OSC client
   this.oscClient = new Osc.Client(Config.osc.client.host, Config.osc.client.port);
-  //console.log(Util.format('channel %d opened OSC connection to %s', this._channelNumber, Config.osc.client.host+':'+Config.osc.client.port));
 
   this.sendMotion = function(motionData) {
 
-    // make sure all motion data is a number
-    motionData = internals.findTypes(motionData);    
-
-    // send motion (aX, xY, aZ) and rotation (alpha, beta, gamma) data
+    // data array format:
+    // 0,1,2 acceleration (aX, xY, aZ)
+    // 3,4,5 rotation (alpha, beta, gamma)
+    // 6,7   touch position (x, y)
     this.oscClient.send({
       address: '/'+this.channelName+' /motion',
       args: motionData

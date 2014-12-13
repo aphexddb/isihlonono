@@ -4,12 +4,15 @@ angular.module('isihlononoApp')
 
 .controller('NoiseCtrl', ['$scope','$rootScope', 'ConductorService',
 function ($scope, $rootScope, ConductorService) {
-  $scope.conductorOnline = false;
+  $scope.conductorReady = false;
 
   // set the conductor online callback on the root scope
   ConductorService.setOnlineCallback(function(online) {
     $scope.$apply(function () {
       $rootScope.online = online;
+      if (!online) {
+        $scope.conductorReady = false;
+      }
     });
   });
 
@@ -20,9 +23,9 @@ function ($scope, $rootScope, ConductorService) {
     // TODO
 
     // update performer information
-    if (data.conductorOnline !== undefined) {
+    if (data.conductorReady !== undefined) {
       $scope.$apply(function () {
-        $scope.conductorOnline = true;
+        $scope.conductorReady = true;
       });
     };
 

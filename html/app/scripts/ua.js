@@ -11,7 +11,7 @@ angular.module('isihlononoApp')
   // user friendly device info
   ua.toString = function() {
     var device = '';
-    if (ua.device.vendor !== null) {
+    if (ua.device.vendor !== undefined) {
       device = ua.device.vendor + ' ' + ua.device.model + ' ' + ua.device.type;
     }
     var str = device + ' ' + ua.browser.name + ' ' + ua.browser.major + ' on ' + ua.os.name;

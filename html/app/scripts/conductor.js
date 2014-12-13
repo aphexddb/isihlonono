@@ -30,7 +30,7 @@ function ($rootScope, $timeout) {
     connect();
   };
 
-  var connect = function() {
+  var connect = function(onOpenCallback) {
 
     ws = new WebSocket(socketUrl);
 
@@ -39,6 +39,9 @@ function ($rootScope, $timeout) {
       console.log('Conductor:',readyStates[readyState]);
       callbackOnline(true);
       conductorOnline = true;
+      if (onOpenCallback !== undefined) {
+        onOpenCallback();
+      }
     };
 
     ws.onclose = function() {
@@ -60,7 +63,6 @@ function ($rootScope, $timeout) {
     console.log('Conductor -',readyStates[readyState]);
   };
   */
-
 };
 
 Service.setOnlineCallback = function(callback) {
@@ -79,6 +81,10 @@ Service.send = function(request) {
   if (conductorOnline) {
     ws.send(JSON.stringify(request));
   }
+};
+
+Service.sendNow = function(request) {
+  ws.send(JSON.stringify(request));
 };
 
 return Service;

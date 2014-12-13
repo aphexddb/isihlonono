@@ -2,26 +2,34 @@
 
 angular.module('isihlononoApp')
 
-.controller('HomeCtrl', ['$scope','$rootScope', 'ConductorService', 'Motion',
-function ($scope, $rootScope, ConductorService, Motion) {
+.controller('HomeCtrl', ['$scope','$rootScope', 'ConductorService', 'Motion', 'UA',
+function ($scope, $rootScope, ConductorService, Motion, UA) {
 
   // set the conductor online callback on the root scope
   ConductorService.setOnlineCallback(function(online) {
     $scope.$apply(function () {
       $rootScope.online = online;
-      Motion.setOnline(true);
+
+      // tell conductor we are a performer
+      ConductorService.sendNow({
+        event: 'performerOnline',
+        data: {
+          ua: UA.toString()
+        }
+      });
+
     });
   });
 
 
 }])
 
-.controller('ClientCtrl', ['$scope', 'ConductorService', 'Motion', 'UA',
-function ($scope, ConductorService, Motion, UA) {
+
+.controller('ClientCtrl', ['$scope', 'ConductorService', 'Motion',
+function ($scope, ConductorService, Motion) {
   $scope.performer = null;
   $scope.motionData = null;
   var strokeStyle = 'hsla(360, 100%, 100%, 1)'; // black
-  var userAgentInfo = UA.toString();
 
   // circle object
   var Circle = function(canvasId) {
@@ -64,6 +72,12 @@ function ($scope, ConductorService, Motion, UA) {
         strokeStyle = 'hsla('+data.performer.altColor+', 100%, 50%, 1)';
       });
     }
+
+    // conductor is ready to accept motion data
+    if (data.acceptInput !== undefined) {
+      console.log('Conductor is ready to accept input');
+      Motion.setOnline(true);
+    };
   });
 
   // connect to the conductor

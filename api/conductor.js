@@ -47,7 +47,7 @@ var initConductorInternals = function() {
         break;
       }
     }
-    internals.server.log(['conductor'], Util.format('allocated channel %d', channelNumber));
+    internals.server.log(['conductor'], Util.format('channel %d (out) is first available', channelNumber));
     return channelNumber;
   };
 
@@ -70,7 +70,7 @@ var initConductorInternals = function() {
     // fire initial callback to performer
     initCallback(channelNumber);
 
-    internals.server.log(['conductor'], Util.format('output created on channel %d', channelNumber));
+    internals.server.log(['conductor'], Util.format('channel %d (out) allocated to performer #%d', channelNumber, performerId));
     return internals.sharedState.outputs[channelNumber];
   };
 
@@ -81,7 +81,7 @@ var initConductorInternals = function() {
 
   // remove an output channel
   internals.removeOutput = function(channelNumber) {
-    internals.server.log(['conductor'], Util.format('output channel %d removed', channelNumber));
+    internals.server.log(['conductor'], Util.format('channel %d (out) removed', channelNumber));
     delete internals.sharedState.outputs[channelNumber];
   }
 
@@ -97,7 +97,10 @@ var initConductorInternals = function() {
 var start = function(server) {
   initConductorInternals();
   internals.server = server;
+  internals.updateConductorClient = null;
   var clientId = 0;
+  var conductorId = null;
+
 
   var wss = new Ws({port: Config.ws.port}, function() {
 
@@ -119,51 +122,101 @@ var start = function(server) {
 
   // init websocket on each client connection
   wss.on('connection', function(ws) {
-    var performer = {}; // performer object
     var thisId = ++clientId;
+    var channelNumber = null;
+
     internals.server.log(['conductor'], Util.format('websocket client #%d connected', thisId));
 
-    // callback to send a performer it's current state
-    var updateCallback = function() {
-      ws.send(JSON.stringify(performer));
-    };
+    var addPerformer = function(id, userAgent) {
 
-    var updatePerformerState = function(channelNumber) {
-      var performerState = {
-        performer: internals.getChannel(channelNumber).performer
+      // callback to send a performer it's current state
+      var updateCallback = function() {
+        ws.send(JSON.stringify(internals.getChannel(channelNumber).performer));
       };
-      ws.send(JSON.stringify(performerState));
+
+      var updatePerformerStateCallback = function(chanNum) {
+        var performerState = {
+          performer: internals.getChannel(chanNum).performer
+        };
+        ws.send(JSON.stringify(performerState));
+      };
+
+      // allocate a new channel for the performer
+      channelNumber = internals.allocateChannelNumber();
+      var channelOut = internals.allocateChannel(channelNumber, id, updateCallback, updatePerformerStateCallback);
+
+      // update performer user agent
+      internals.getChannel(channelNumber).performer.setUserAgent(userAgent);
+
+      // tell the client we are ready to accept data
+      ws.send(JSON.stringify({acceptInput: true}));
+
+      // send performer state
+      updateCallback();
     };
 
-    // allocate a new channel for the performer
-    var channelNumber = internals.allocateChannelNumber();
-    var channelOut = internals.allocateChannel(channelNumber, thisId, updateCallback, updatePerformerState);
+    var assignConductor = function(id) {
+      conductorId = id;
 
+      // update the global conductor update callback
+      internals.updateConductorClient = function() {
+        if (conductorId !== null) {
+
+          // sned the conductor client all performer information
+          ws.send(JSON.stringify({
+            performers: internals.sharedState.performers
+          }));
+        }
+      };
+
+      // tell the conductor we are ready
+      ws.send(JSON.stringify({conductorReady: true}));
+
+      // update conductor with inital state
+      internals.updateConductorClient();
+
+      internals.server.log(['conductor'], Util.format('The conductor is now client #%d!', id));
+    };
+
+
+    // handle each websocket message
     ws.on('message', function(message) {
-      console.log('received message',message);
       var obj = JSON.parse(message);
-      if (obj['event'] === 'motion') {
-        internals.getChannel(channelNumber).outputChannel.sendMotion(obj['data']);
-      } else if (obj['event'] === 'conductorOnline') {
-        // TODO
-        ws.send(JSON.stringify({conductorOnline: true}));
-      } else {
-        internals.server.log(['conductor'], Util.format('websocket client #%d sent: %s', thisId, message));
+      switch(obj['event']) {
+        case 'performerOnline':
+          internals.server.log(['conductor'], Util.format('websocket client #%d sent: %s', thisId, obj['event']));
+          addPerformer(thisId, obj['data']['ua']);
+          break;
+        case 'motion':
+          internals.getChannel(channelNumber).outputChannel.sendMotion(internals.getChannel(channelNumber).performer.setMotion(obj['data']));
+          if (internals.updateConductorClient !== null) {
+            internals.updateConductorClient();
+          }
+          break;
+        case 'conductorOnline':
+          assignConductor(thisId);
+          break;
+        default:
+          internals.server.log(['conductor'], Util.format('websocket client #%d sent: %s', thisId, message));
       }
     });
 
     // delete performer on close
     ws.on('close', function() {
       internals.server.log(['conductor'], Util.format('websocket client #%d disconnected', thisId));
-      internals.removeOutput(channelNumber);
-      internals.removePerformer(thisId);
+      if (channelNumber !== null) {
+        internals.removeOutput(channelNumber);
+        internals.removePerformer(thisId);
+      }
     });
 
     // delete performer on error
     ws.on('error', function(e) {
       internals.server.log(['conductor'], Util.format('websocket client #%d error: %s', thisId, e.message));
-      internals.removeOutput(channelNumber);
-      internals.removePerformer(thisId);
+      if (channelNumber !== null) {
+        internals.removeOutput(channelNumber);
+        internals.removePerformer(thisId);
+      }
     });
 
   });

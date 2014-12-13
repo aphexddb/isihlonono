@@ -66,7 +66,8 @@ function Performer(server, id, updateCallback) {
   if (internals.server === null) {
     internals.server = server;
   }
-  internals.server.log(['performer'], Util.format('#%d created', id));
+
+  internals.server.log(['performer'], Util.format('performer #%d created', id));
 
   this.setChannelNumber = function(channelNumber) {
     this.channelNumber = channelNumber;
@@ -74,6 +75,10 @@ function Performer(server, id, updateCallback) {
 
   this.setActive = function(state) {
     this.active = state;
+  };
+
+  this.setUserAgent = function(userAgent) {
+    this.userAgent = userAgent;
   };
 
   this.id = id;
@@ -84,23 +89,31 @@ function Performer(server, id, updateCallback) {
   this.altColor = opposingColor(this.color);
   this.motionData = {};
   this.updateCallback = updateCallback;
+  this.userAgent = '';
 
-  this.sendMotion = function(tag, motionData) {
+  // data array format:
+  // 0,1,2 acceleration (aX, xY, aZ)
+  // 3,4,5 rotation (alpha, beta, gamma)
+  // 6,7   touch position (x, y)
+  this.motionData = new Array(8);
+
+  this.setMotion = function(motionData) {
 
     // make sure all motion data is a number
-    for (var i=0; i<motionData.length; ++i) {
+    for (var i=0; i<this.motionData.length; ++i) {
       if (isNumber(motionData[i])) {
-        motionData[i] = parseFloat(motionData[i]);
+        this.motionData[i] = parseFloat(motionData[i]);
       } else {
-        motionData[i] = 0;
+        this.motionData[i] = 0.0;
       }
     }
 
-    // send motion (aX, xY, aZ) and rotation (alpha, beta, gamma) data
-    oscClient.send({
-      address: '/performer'+tag+' /motion',
-      args: motionData
-    });
+    return this.motionData;
+
+  };
+
+  this.getMotion = function() {
+    return this.motionData;
   };
 
   this.setState = function(motionObject) {
