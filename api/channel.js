@@ -30,12 +30,14 @@ var out = function(channelNumber) {
 
   this.sendMotion = function(motionData) {
 
+    var address = '/channel'+this._channelNumber+'/motion';
+
     // data array format:
     // 0,1,2 acceleration (aX, xY, aZ)
     // 3,4,5 rotation (alpha, beta, gamma)
     // 6,7   touch position (x, y)
     this.oscClient.send({
-      address: '/'+this.channelName+' /motion',
+      address: address,
       args: motionData
     });
   };
