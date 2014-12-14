@@ -208,10 +208,16 @@ div.connecting h1 {
 
  }
  .channels ul li {
-  width: 150px;
-  height: 300px;
+  width: 100%;
+  height: 90px;
   border: 1px solid #FFF;
   vertical-align:top;
+  display: inline-block;
+  clear: both;
+  padding: 0;
+}
+.channels ul li .channel-wrapper {
+  padding-left: 5px;
 }
 .channels .open {
   background-color: hsla(113, 100%, 41%, 0.49);
@@ -219,8 +225,27 @@ div.connecting h1 {
 .channels .closed {
   background-color: hsla(0, 100%, 41%, 0.49);
 }
-.channels .user-agent {
-  background-color: hsla(48, 100%, 100%, 0.48);
+.channels ul li .channel-name {
+  background-color: hsla(113, 100%, 100%, 0.49);
+  color: #000;
+  width: 80px;
+}
+.channels ul li .data .title {
+  display: inline-block;
+  text-align: right;
+  width: 85px;
+}
+.channels ul li .data .label {
+  display: inline-block;
+  text-align: right;
+  width: 45px;
+  color: #000;
+}
+.channels ul li .data .data {
+  display: inline-block;
+  width: 40px;
+}
+.channels ul li .user-agent {
 }
 
 #gameArea {

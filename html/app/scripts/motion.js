@@ -9,7 +9,7 @@ angular.module('isihlononoApp')
   // We return this object to anything injecting our service
   var Service = function() {
     var self = this;
-    this.doTare = true;
+    this.doTare = false;
     this.tareValues = {x:0,y:0,z:0};
     this.online = false;
     this.callback = null;
