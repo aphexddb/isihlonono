@@ -19,6 +19,7 @@ module.exports = {
     'port': apiPort
   },
   'ws': {
+    'host': '0.0.0.0',
     'port': wsPort
   },
   'osc': {

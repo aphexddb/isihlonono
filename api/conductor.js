@@ -101,8 +101,7 @@ var start = function(server) {
   var clientId = 0;
   var conductorId = null;
 
-
-  var wss = new Ws({port: Config.ws.port}, function() {
+  var wss = new Ws({port: Config.ws.port, host: Config.ws.host}, function() {
 
     // setup websocket broadcast function
     wss.broadcast = function broadcast(data) {
@@ -165,7 +164,12 @@ var start = function(server) {
           // sned the conductor client all performer information
           ws.send(JSON.stringify({
             performers: internals.sharedState.performers
-          }));
+          }), function ack(error) {
+            if (error) {
+              conductorId = null;
+              internals.server.log(['conductor','error'], Util.format('error updating conductor client #%d! Deleting conductor!', conductorId));
+            }
+          });
         }
       };
 
@@ -207,6 +211,7 @@ var start = function(server) {
       if (channelNumber !== null) {
         internals.removeOutput(channelNumber);
         internals.removePerformer(thisId);
+        internals.updateConductorClient(); // let conductor client know we dropped a channel
       }
     });
 
@@ -216,6 +221,7 @@ var start = function(server) {
       if (channelNumber !== null) {
         internals.removeOutput(channelNumber);
         internals.removePerformer(thisId);
+        internals.updateConductorClient(); // let conductor client know we dropped a channel
       }
     });
 

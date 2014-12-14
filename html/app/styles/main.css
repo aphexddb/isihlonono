@@ -201,13 +201,29 @@ div.connecting h1 {
   margin: 0px;
 }
 
+/*
+ * Channels
+ */
+ .channels ul {
+
+ }
+ .channels ul li {
+  width: 150px;
+  height: 200px;
+  border: 1px solid #FFF;
+  vertical-align:top;
+}
+.channels .open {
+  background-color: hsla(113, 100%, 41%, 0.49);
+}
+.channels .closed {
+  background-color: hsla(0, 100%, 41%, 0.49);
+}
+.channels .user-agent {
+  background-color: hsla(48, 100%, 100%, 0.48);
+}
 
 #gameArea {
-  /*
-  position: absolute;
-  left:     50%;
-  top:      50%;
-  */
 }
 
 #gameCanvas {

@@ -1,6 +1,49 @@
 <div ng-show="online">
-  <div ng-show="conductorReady">
-    YOU ARE ONLINE!!!
+  <div ng-show="conductorReady" class="channels">
+
+    <ul class="list-inline">
+      <li ng-repeat="channel in channels" class="channel" ng-class="{open: channel.state == 'open', closed: channel.state == 'closed'}">
+        <div class="text-center">
+          <p>
+            Channel {{channel.channelNumber}} {{channel.state}}
+            <br/>
+            <span class="user-agent">{{channel.userAgent}}</span>
+          </p>
+        </div>
+
+        <div ng-show="channel.state == 'open'">
+          <p>
+            Acceleration<br/>
+            aX: {{channel.motionData[0]}}<br/>
+            aX: {{channel.motionData[1]}}<br/>
+            aZ: {{channel.motionData[2]}}<br/>
+          <!--
+            alpha: {{channel.motionData[3]}}<br/>
+            beta: {{channel.motionData[4]}}<br/>
+            gamma: {{channel.motionData[5]}}<br/>
+          -->
+          </p>
+          <!--
+          <p>
+            Touch<br/>
+            mouseX: {{channel.motionData[6]}}<br/>
+            mouseY: {{channel.motionData[7]}}
+          </p>
+          -->
+
+          <!--
+          <button ng-show="channel.active" class="btn btn-xs">Off</button>
+          <button ng-show="!channel.active" class="btn btn-xs">On</button>
+          -->
+
+          <p>
+            Mood: {{channel.mood}}
+          </p>
+        </div>
+
+      </li>
+    </ul>
+
   </div>
   <div ng-hide="conductorReady" class="text-center">
     <button class="btn btn-lg btn-default" ng-click="conduct()">Conduct</button>
