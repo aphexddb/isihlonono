@@ -59,7 +59,7 @@ var initConductorInternals = function() {
 
     internals.sharedState.outputs[channelNumber] = {
       channelNumber: channelNumber,
-      outputChannel: new Channel.out(channelNumber),
+      outputChannel: new Channel.out(internals.server, channelNumber),
       performer: internals.sharedState.performers[performerId]
     };
 
@@ -98,6 +98,11 @@ var start = function(server) {
   initConductorInternals();
   internals.server = server;
   internals.updateConductorClient = null;
+  internals.updateConductorClientWrapper = function() {
+    if (internals.updateConductorClient !== null) {
+      internals.updateConductorClient();
+    }
+  }
   var clientId = 0;
   var conductorId = null;
 
@@ -177,7 +182,7 @@ var start = function(server) {
       ws.send(JSON.stringify({conductorReady: true}));
 
       // update conductor with inital state
-      internals.updateConductorClient();
+      internals.updateConductorClientWrapper();
 
       internals.server.log(['conductor'], Util.format('The conductor is now client #%d!', id));
     };
@@ -193,9 +198,7 @@ var start = function(server) {
           break;
         case 'motion':
           internals.getChannel(channelNumber).outputChannel.sendMotion(internals.getChannel(channelNumber).performer.setMotion(obj['data']));
-          if (internals.updateConductorClient !== null) {
-            internals.updateConductorClient();
-          }
+          internals.updateConductorClientWrapper();
           break;
         case 'conductorOnline':
           assignConductor(thisId);
@@ -211,7 +214,7 @@ var start = function(server) {
       if (channelNumber !== null) {
         internals.removeOutput(channelNumber);
         internals.removePerformer(thisId);
-        internals.updateConductorClient(); // let conductor client know we dropped a channel
+        internals.updateConductorClientWrapper(); // let conductor client know we dropped a channel
       }
     });
 
@@ -221,7 +224,7 @@ var start = function(server) {
       if (channelNumber !== null) {
         internals.removeOutput(channelNumber);
         internals.removePerformer(thisId);
-        internals.updateConductorClient(); // let conductor client know we dropped a channel
+        internals.updateConductorClientWrapper(); // let conductor client know we dropped a channel
       }
     });
 
