@@ -63,7 +63,7 @@ function ($scope, ConductorService, Motion) {
 
   // websocket callback for all messages
   ConductorService.setCallback(function(data) {
-    console.log('received data',data);
+    //console.log('received data',data);
 
     // update performer information
     if (data.performer !== undefined) {

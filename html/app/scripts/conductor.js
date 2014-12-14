@@ -5,7 +5,7 @@ angular.module('isihlononoApp')
 .factory('ConductorService', ['$rootScope', '$timeout',
 function ($rootScope, $timeout) {
 
-  var socketUrl = 'ws://localhost:8081/ws/conductor';
+  var socketUrl = 'ws://'+window.location.hostname+':8081/ws/conductor';
   var callbackFunc = null;
   var ws = null;
 

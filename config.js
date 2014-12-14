@@ -5,8 +5,8 @@ var GoodConsole = require('good-console');
 // get config from environment
 var env = process.env.NODE_ENV || process.env.ENV || 'development';
 var port = process.env.PORT || 8080;
-var apiPort = 8081;
 var wsPort = 8081;
+var apiPort = 8082;
 var oscPortServer = 3333;
 var oscPortClient = 3334;
 
