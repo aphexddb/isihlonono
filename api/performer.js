@@ -91,13 +91,12 @@ function Performer(server, id, updateCallback) {
   this.updateCallback = updateCallback;
   this.userAgent = '';
 
-  // data array format:
+  // Motion data array format:
   // 0,1,2 acceleration (aX, xY, aZ)
   // 3,4,5 rotation (alpha, beta, gamma)
-  // 6,7   touch position (x, y)
-  this.motionData = new Array(8);
+  this.motionData = new Array(6);
 
-  // data array format:
+  // Touch data array format:
   // 0,1   position (x, y)
   // 2,3   delta (deltaX, deltaY)
   // 4     velocity

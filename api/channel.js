@@ -36,10 +36,9 @@ var out = function(server, channelNumber) {
     // send motion data for this channel
   this.sendMotion = function(motionData) {
 
-    // data array format:
+    // Motion data array format:
     // 0,1,2 acceleration (aX, xY, aZ)
     // 3,4,5 rotation (alpha, beta, gamma)
-    // 6,7   touch position (x, y)
 
     var buf = Osc.toBuffer({
       //timetag: 12345,
@@ -56,7 +55,7 @@ var out = function(server, channelNumber) {
   // send touch data for this channel
   this.sendTouch = function(touchData) {
 
-    // data array format:
+    // Touch data array format:
     // 0,1   position (x, y)
     // 2,3   delta (deltaX, deltaY)
     // 4     velocity

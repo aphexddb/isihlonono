@@ -33,17 +33,6 @@ angular.module('isihlononoApp')
     this.width = window.innerWidth;
     this.height = window.innerHeight;
 
-    // convert mouse coords to 0-1 range
-    this.convertRange = function(x, y) {
-      var outputLow = 0.0;
-      var outputHigh = 1.0;
-      var inputLow = 0;
-      return {
-        x: ((x - inputLow) / (self.width - inputLow)) * (outputHigh - outputLow) + outputLow,
-        y: ((y - inputLow) / (self.height - inputLow)) * (outputHigh - outputLow) + outputLow
-      };
-    };
-
     // from http://www.webreference.com/programming/javascript/mk/column2/
     this.getMouseXY = function(ev){
       var x = ev.pageX;
@@ -58,6 +47,39 @@ angular.module('isihlononoApp')
       self.mousePosition = {
         x: x,
         y: y
+      };
+    };
+
+    // convert a value to a 0-1 range
+    this.convertRange0to1 = function(val, inputHigh) {
+      var outputLow = 0.0;
+      var outputHigh = 1.0;
+      var inputLow = 0;
+      return ((val - inputLow) / (inputHigh - inputLow)) * (outputHigh - outputLow) + outputLow;
+    };
+
+    // convert mouse coords
+    this.rangeMouseCoords = function(x, xMax, y, yMax) {
+      var outputLow = 0.0;
+      var outputHigh = 1.0;
+      var inputLow = 0;
+      return {
+        x: self.convertRange0to1(x, xMax),
+        y: self.convertRange0to1(y, yMax)
+      };
+    };
+
+    // convert delta values
+    this.rangeDeltaValues = function(dX, dY) {
+      var maxDeltaX = self.width / 2;
+      var maxDeltaY = self.height / 2;
+      if (dX < 0 && Math.abs(dX) > maxDeltaX) { dX = -maxDeltaX; }
+      if (dX > 0 && dX > maxDeltaX) { dX = maxDeltaX; }
+      if (dY < 0 && Math.abs(dY) > maxDeltaY) { dY = -maxDeltaY; }
+      if (dY > 0 && dY > maxDeltaY) { dY = maxDeltaY; }
+      return {
+        x: self.convertRange0to1(dX, maxDeltaX),
+        y: self.convertRange0to1(dY, maxDeltaY)
       };
     };
 
@@ -77,19 +99,24 @@ angular.module('isihlononoApp')
       this.e = document.getElementById(this.elementId);
       this.hammertime = new Hammer(this.e, this.opts);
 
-      // event action
+      // touch event action
       this.hammertime.on('pan', function(ev) {
 
         // convert current mouse position to 0-1 range
-        var rangedMouse = self.convertRange(self.mousePosition.x, self.mousePosition.y);
+        var rangedMouse = self.rangeMouseCoords(self.mousePosition.x, self.width, self.mousePosition.y, self.height);
+
+        // convert deltas to 0-1 range
+        var rangedDelta = self.rangeDeltaValues(ev.deltaX, ev.deltaY);
 
         self.data = {
           x: rangedMouse.x,
           y: rangedMouse.y,
-          deltaX: ev.deltaX,
-          deltaY: ev.deltaY,
-          velocity: ev.velocity
+          deltaX: rangedDelta.x,
+          deltaY: rangedDelta.y * -1, // invert our Y-axis to be more intiitive
+          velocity: Math.abs(ev.velocity)
         };
+
+        //console.log(self.data);
 
         // fire callback
         if (self.online && self.callback != null) {
