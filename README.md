@@ -13,48 +13,24 @@ Making noise one grain at a time.
 
 ### Web hackery
 
-* Have a CONDUCTOR server
-  * Allows multiple phones to connect to server via wifi/HTTP
-  * Accepts Websocket clients (8081)
-  * Accepts HTTP clients (80)
-  * Accepts OSC traffic (3333) ex: /normalize 0.5
-  * Sends OSC traffic (3334)
-    * Input for each PERFORMER that is ACTIVE
-    * ex: /performer1 10 20 30 40 50 60
-  * Maintains a state of each PERFORMER
-    * ACTIVE
-    * MOOD
-    * COLOR (hue/alpha/etc)
-    * Input State (xyz axis, acceleration, mouse xy)
-  * Conductor UI
-    * See each PERFORMER thats online
-      * See live input data for each PERFORMER
-      * Toggle ACTIVE on/off
-      * Select MOOD calm/indifferent/violent
-    * Returns COLOR data to each PERFORMER
+* Some soft of wifi router setup that forwards all traffic to web app
+    * wifi name "Make Music" or something fun
+* Conductor UI
+    * Select MOOD. Ex: calm/indifferent/violent
+    * Set a message to display on performer UI
 * Have a PERFORMER web app
-  * Displays ONLINE or OFFLINE
   * displays MOOD that is set by CONDUCTOR
-    * animated GIF
-  * displays COLOR in the background
-  * displays input data
-    * Accelerometer
-    * some sort of visual to indicate movement
-  * streams data to the CONDUCTOR
-    * emits accelerometer data as XYZ -> 0-1
-    * tracks acceleration (G's) -> 0-1
+    * animated .GIF ?
+    * text ?
+  * Display message from conductor  
 * Wild speculation thats probably hard
   * Capture audio from web page and send it to server (samples)
 
 ### Patch and Audio Wizardry
 
-* Patch that accepts OSC data and routes it intelligently
-  * Expected input: Acceleration (G force) as 0-1
-  * Handle 2 input channels (two humans)
-
-## Reading
-
-* [HighC](http://highc.org/)
+* Patch that accepts the below OSC data
+  * Handle at least 2 input channels (two humans)
+* See [audio_ideas.md](audio_ideas.md)
 
 ## OSC Output
 
@@ -110,3 +86,15 @@ Touch data array format:
 * The velocity has no upper limit, however testing indicates that it's hard to get past `20` even on a computer
 
 A "delta" value is the position from where a touch or click event first occured, and the movement away from that position. For example, if you touch the middle of the screen and move all the way left, you will end up at `-1.0`. If you touch the middle again and move right you will end up at `1.0`.
+
+## Additional Info & Related Reading
+
+Music
+
+* [HighC](http://highc.org/)
+* [Audacity](http://audacity.sourceforge.net/)
+
+Web
+
+* [Angular Performance Tuning](http://www.slideshare.net/dragosrusu/angularjs-overcoming-performance-issues-limits)
+* [HSL Color Picker](http://hslpicker.com/)
