@@ -6,7 +6,6 @@
 
 var Config = require('../config');
 var Util = require('util');
-//var Osc = require('node-osc');
 var Osc = require('osc-min');
 var dgram = require('dgram');
 
@@ -25,16 +24,16 @@ var internals = {
 // Channel out
 var out = function(server, channelNumber) {
   this._channelNumber = channelNumber;
-  this.address = '/channel'+this._channelNumber+'/motion';
+  this.baseAddress = '/channel'+this._channelNumber;
 
-  // OSC client
-  //this.oscClient = new Osc.Client(Config.osc.client.host, Config.osc.client.port);
+  // Create OSC client
   server.log(['channel'], Util.format('channel %d (out) created, sending OSC data to %s:%d %s',
     this._channelNumber,
     Config.osc.client.host,
     Config.osc.client.port,
     this.address));
 
+    // send motion data for this channel
   this.sendMotion = function(motionData) {
 
     // data array format:
@@ -42,20 +41,33 @@ var out = function(server, channelNumber) {
     // 3,4,5 rotation (alpha, beta, gamma)
     // 6,7   touch position (x, y)
 
-    /*
-    this.oscClient.send({
-      address: this.address,
-      args: motionData
-    });
-    */
-
     var buf = Osc.toBuffer({
       //timetag: 12345,
       elements: [
         {
-          address: this.address,
+          address: this.baseAddress + '/motion',
           args: motionData
         }
+      ]
+    });
+    internals.udp.send(buf, 0, buf.length, Config.osc.client.port, Config.osc.client.host);
+  };
+
+  // send touch data for this channel
+  this.sendTouch = function(touchData) {
+
+    // data array format:
+    // 0,1   position (x, y)
+    // 2,3   delta (deltaX, deltaY)
+    // 4     velocity
+
+    var buf = Osc.toBuffer({
+      //timetag: 12345,
+      elements: [
+      {
+        address: this.baseAddress + '/touch',
+        args: touchData
+      }
       ]
     });
     internals.udp.send(buf, 0, buf.length, Config.osc.client.port, Config.osc.client.host);

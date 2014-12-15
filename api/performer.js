@@ -97,6 +97,12 @@ function Performer(server, id, updateCallback) {
   // 6,7   touch position (x, y)
   this.motionData = new Array(8);
 
+  // data array format:
+  // 0,1   position (x, y)
+  // 2,3   delta (deltaX, deltaY)
+  // 4     velocity
+  this.touchData = new Array(5);
+
   this.setMotion = function(motionData) {
 
     // make sure all motion data is a number
@@ -112,8 +118,27 @@ function Performer(server, id, updateCallback) {
 
   };
 
+  this.setTouch = function(touchData) {
+
+    // make sure all motion data is a number
+    for (var i=0; i<this.touchData.length; ++i) {
+      if (isNumber(touchData[i])) {
+        this.touchData[i] = parseFloat(touchData[i]);
+      } else {
+        this.touchData[i] = 0.0;
+      }
+    }
+
+    return this.touchData;
+
+  };
+
   this.getMotion = function() {
     return this.motionData;
+  };
+
+  this.getTouch = function() {
+    return this.touchData;
   };
 
   this.setState = function(motionObject) {

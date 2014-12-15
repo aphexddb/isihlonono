@@ -196,12 +196,16 @@ var start = function(server) {
           internals.server.log(['conductor'], Util.format('websocket client #%d sent: %s', thisId, obj['event']));
           addPerformer(thisId, obj['data']['ua']);
           break;
+        case 'conductorOnline':
+          assignConductor(thisId);
+          break;
         case 'motion':
           internals.getChannel(channelNumber).outputChannel.sendMotion(internals.getChannel(channelNumber).performer.setMotion(obj['data']));
           internals.updateConductorClientWrapper();
           break;
-        case 'conductorOnline':
-          assignConductor(thisId);
+        case 'touch':
+          internals.getChannel(channelNumber).outputChannel.sendTouch(internals.getChannel(channelNumber).performer.setTouch(obj['data']));
+          internals.updateConductorClientWrapper();
           break;
         default:
           internals.server.log(['conductor'], Util.format('websocket client #%d sent: %s', thisId, message));

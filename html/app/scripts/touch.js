@@ -82,7 +82,6 @@ angular.module('isihlononoApp')
 
         // convert current mouse position to 0-1 range
         var rangedMouse = self.convertRange(self.mousePosition.x, self.mousePosition.y);
-        console.log(rangedMouse);
 
         self.data = {
           x: rangedMouse.x,

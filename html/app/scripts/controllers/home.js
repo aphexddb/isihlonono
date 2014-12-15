@@ -2,13 +2,13 @@
 
 angular.module('isihlononoApp')
 
-.controller('HomeCtrl', ['$scope','$rootScope', 'ConductorService', 'Motion', 'UA',
-function ($scope, $rootScope, ConductorService, Motion, UA) {
+.controller('HomeCtrl', ['$scope','$rootScope', 'ConductorService', 'Motion', 'UA', 'Touch',
+function ($scope, $rootScope, ConductorService, Motion, UA, Touch) {
 
   // set the conductor online callback on the root scope
-  ConductorService.setOnlineCallback(function(online) {
+  ConductorService.setOnlineCallback(function(onlineState) {
     $scope.$apply(function () {
-      $rootScope.online = online;
+      $rootScope.online = onlineState;
 
       // tell conductor we are a performer
       ConductorService.sendNow({
@@ -18,15 +18,17 @@ function ($scope, $rootScope, ConductorService, Motion, UA) {
         }
       });
 
+      // set online state for touch events
+      Touch.setOnline(onlineState);
+
     });
   });
-
 
 }])
 
 
-.controller('ClientCtrl', ['$scope', 'ConductorService', 'Motion',
-function ($scope, ConductorService, Motion) {
+.controller('ClientCtrl', ['$scope', 'ConductorService', 'Motion', 'Touch',
+function ($scope, ConductorService, Motion, Touch) {
   $scope.performer = null;
   $scope.motionData = null;
   var strokeStyle = 'hsla(360, 100%, 100%, 1)'; // black
@@ -60,6 +62,8 @@ function ($scope, ConductorService, Motion) {
       this.ctx.stroke();
     };
   };
+
+
 
   // websocket callback for all messages
   ConductorService.setCallback(function(data) {
@@ -99,8 +103,8 @@ function ($scope, ConductorService, Motion) {
       // update local scope with motion data
       $scope.motionData = motionData;
       accelCircle.draw(motionData[0] * tweakFactor,
-                       motionData[1] * tweakFactor,
-                       motionData[2] * tweakFactor);
+        motionData[1] * tweakFactor,
+        motionData[2] * tweakFactor);
 
       // send motion data to conductor
       ConductorService.send({
@@ -109,6 +113,26 @@ function ($scope, ConductorService, Motion) {
       });
     });
   });
+
+  // set touch data callback
+  Touch.setCallback(function(touchData) {
+    $scope.$apply(function () {
+      $scope.touch = touchData;
+
+      // data array format:
+      // 0,1   position (x, y)
+      // 2,3   delta (deltaX, deltaY)
+      // 4     velocity
+      ConductorService.send({
+        event: 'touch',
+        data: [touchData.x, touchData.y, touchData.deltaX, touchData.deltaY, touchData.velocity]
+      });
+
+    });
+  });
+
+  // start finger touch capture on element
+  Touch.watchElement('touchArea');
 
 }])
 
