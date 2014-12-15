@@ -20,16 +20,28 @@ angular.module('isihlononoApp')
       y: 0.0,
       deltaX: 0.0,
       deltaY: 0.0,
-      velocity: 0.0,
-      direction: 0.0,
-      offsetDirection: 0.0,
-      angle: 0.0
+      velocity: 0.0
     };
 
     // internal mouse coordinate data state
     this.mousePosition = {
       x: 0.0,
       y: 0.0
+    };
+
+    // set width and height
+    this.width = window.innerWidth;
+    this.height = window.innerHeight;
+
+    // convert mouse coords to 0-1 range
+    this.convertRange = function(x, y) {
+      var outputLow = 0.0;
+      var outputHigh = 1.0;
+      var inputLow = 0;
+      return {
+        x: ((x - inputLow) / (self.width - inputLow)) * (outputHigh - outputLow) + outputLow,
+        y: ((y - inputLow) / (self.height - inputLow)) * (outputHigh - outputLow) + outputLow
+      };
     };
 
     // from http://www.webreference.com/programming/javascript/mk/column2/
@@ -40,14 +52,14 @@ angular.module('isihlononoApp')
       // limit mouse coordiantes to window size
       if (x < 0 ) { x = 0; }
       if (y < 0 ) { y = 0; }
-      if (x > window.innerWidth) { x = window.innerWidth };
-      if (y > window.innerHeight) { y = window.innerHeight };
+      if (x > self.width) { x = self.width };
+      if (y > self.height) { y = self.height };
 
       self.mousePosition = {
         x: x,
         y: y
       };
-    }
+    };
 
     // start collecting mouse movement data
     document.onmousemove = this.getMouseXY;
@@ -68,15 +80,16 @@ angular.module('isihlononoApp')
       // event action
       this.hammertime.on('pan', function(ev) {
 
+        // convert current mouse position to 0-1 range
+        var rangedMouse = self.convertRange(self.mousePosition.x, self.mousePosition.y);
+        console.log(rangedMouse);
+
         self.data = {
-          x: self.mousePosition.x,
-          y: self.mousePosition.y,
+          x: rangedMouse.x,
+          y: rangedMouse.y,
           deltaX: ev.deltaX,
           deltaY: ev.deltaY,
-          velocity: ev.velocity,
-          direction: ev.direction,
-          offsetDirection: ev.offsetDirection,
-          angle: ev.angle
+          velocity: ev.velocity
         };
 
         // fire callback
