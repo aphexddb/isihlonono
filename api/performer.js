@@ -73,8 +73,9 @@ function Performer(server, id, updateCallback) {
     this.channelNumber = channelNumber;
   };
 
-  this.setActive = function(state) {
+  this.toggleActive = function(state) {
     this.active = state;
+    this.updateCallback();
   };
 
   this.setUserAgent = function(userAgent) {

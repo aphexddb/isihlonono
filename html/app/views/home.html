@@ -1,20 +1,20 @@
 <div ng-controller="ClientCtrl">
   <div ng-show="performer.active">
     <div class="performer text-center" style="background-color: hsla({{performer.color}}, 100%, 50%, 1); color: hsla({{performer.altColor}}, 100%, 50%, 1);">
-      <div ng-show="performer.active">
-        <h1>You are {{performer.mood}}</h1>
-        <h3>Move your device in an appropiate fashion.</h3>
 
-        <br/>
+      <h1>You are {{performer.mood}}</h1>
+      <h3>Move your device in an appropiate fashion.</h3>
 
-        <div id=”gameArea” class="text-center">
-          <canvas id="gameCanvas"></canvas>
-          <div id=”statsPanel”>
-            <span>Channel {{performer.channelNumber}}</span>
-          </div>
+      <br/>
+
+      <div id=”gameArea” class="text-center">
+        <canvas id="gameCanvas"></canvas>
+        <div id=”statsPanel”>
+          <span>You are Channel {{performer.channelNumber}}</span>
         </div>
-        
       </div>
+
+
     </div>
   </div>
   <div ng-hide="performer.active" class="text-center">

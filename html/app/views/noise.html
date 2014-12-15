@@ -1,80 +1,60 @@
 <div ng-show="online">
   <div ng-show="conductorReady" class="channels">
 
-    <ul class="list-inline">
-      <li ng-repeat="channel in channels" class="channel" ng-class="{open: channel.state == 'open', closed: channel.state == 'closed'}">
-        <div class="channel-wrapper">
+    <ul class="list-inline" ng-cloak>
+      <li ng-repeat="channel in channels track by $index"
+      class="channel"
+      ng-class="{open: channel.state == 'open', closed: channel.state == 'closed'}">
+      <div class="channel-wrapper">
 
-          <div class="pull-left">
+        <div class="pull-left">
+
+          <div ng-show="channel.state == 'open'">
+
             <span class="user-agent">{{channel.userAgent}}</span>
 
-            <div ng-show="channel.state == 'open'">
-              <div class="data data-acceleration">
-                <span class="title">Acceleration:</span>
-                <span class="label">X</span> <span class="data">{{channel.motionData[0] | number: 3 }}</span>
-                <span class="label">X</span> <span class="data">{{channel.motionData[1] | number: 3 }}</span>
-                <span class="label">Z</span> <span class="data">{{channel.motionData[2] | number: 3 }}</span>
-              </div>
-              <div class="data data-rotation">
-                <span class="title">Rotation:</span>
-                <span class="label">alpha</span> <span class="data">{{channel.motionData[3] | number: 3 }}</span>
-                <span class="label">beta</span>  <span class="data">{{channel.motionData[4] | number: 3 }}</span>
-                <span class="label">gamma</span> <span class="data">{{channel.motionData[5] | number: 3 }}</span>
-              </div>
-              <div class="data data-position">
-                <span class="title">Position:</span>
-                <span class="label">X</span> <span class="data">{{channel.touchData[0] | number: 3 }}</span>
-                <span class="label">Y</span> <span class="data">{{channel.touchData[1] | number: 3 }}</span>
-                <span class="label">deltaX</span> <span class="data">{{channel.touchData[2] | number: 3 }}</span>
-                <span class="label">deltaY</span> <span class="data">{{channel.touchData[3] | number: 3 }}</span>
-                <span class="label">accel</span> <span class="data">{{channel.touchData[4] | number: 3 }}</span>
-              </div>
+            <button ng-if="!channel.active" ng-click="setActive(channel.channelNumber, true)" class="btn btn-xs btn-info active-button active-button-inactive">Activate OSP</button>
+            <button ng-if="channel.active" ng-click="setActive(channel.channelNumber, false)" class="btn btn-xs btn-info active-button active-button-active">Deactivate OSP</button>
+
+            <div class="data data-acceleration">
+              <span class="title">Acceleration:</span>
+              <span class="label">X</span> <span class="data">{{channel.motionData[0] | number: 3 }}</span>
+              <span class="label">X</span> <span class="data">{{channel.motionData[1] | number: 3 }}</span>
+              <span class="label">Z</span> <span class="data">{{channel.motionData[2] | number: 3 }}</span>
             </div>
-          </div>
+            <div class="data data-rotation">
+              <span class="title">Rotation:</span>
+              <span class="label">alpha</span> <span class="data">{{channel.motionData[3] | number: 3 }}</span>
+              <span class="label">beta</span>  <span class="data">{{channel.motionData[4] | number: 3 }}</span>
+              <span class="label">gamma</span> <span class="data">{{channel.motionData[5] | number: 3 }}</span>
+            </div>
+            <div class="data data-position">
+              <span class="title">Position:</span>
+              <span class="label">X</span> <span class="data">{{channel.touchData[0] | number: 3 }}</span>
+              <span class="label">Y</span> <span class="data">{{channel.touchData[1] | number: 3 }}</span>
+              <span class="label">deltaX</span> <span class="data">{{channel.touchData[2] | number: 3 }}</span>
+              <span class="label">deltaY</span> <span class="data">{{channel.touchData[3] | number: 3 }}</span>
+              <span class="label">accel</span> <span class="data">{{channel.touchData[4] | number: 3 }}</span>
+            </div>
 
-          <div class="text-center channel-name pull-right">
-            Channel {{channel.channelNumber}}
           </div>
-
         </div>
 
-
-          <!--
-          Mood: {{channel.mood}}
-
-          <p>
-            <span class="label">Acceleration</span><br/>
-            aX: {{channel.motionData[0]}}<br/>
-            aX: {{channel.motionData[1]}}<br/>
-            aZ: {{channel.motionData[2]}}<br/>
-            <span class="label">Rotation:</span><br/>
-            alpha: {{channel.motionData[3]}}<br/>
-            beta: {{channel.motionData[4]}}<br/>
-            gamma: {{channel.motionData[5]}}<br/>
-          </p>
-          -->
-          <!--
-          <p>
-            Touch<br/>
-            mouseX: {{channel.motionData[6]}}<br/>
-            mouseY: {{channel.motionData[7]}}
-          </p>
-          -->
-
-          <!--
-          <button ng-show="channel.active" class="btn btn-xs">Off</button>
-          <button ng-show="!channel.active" class="btn btn-xs">On</button>
-          -->
-
+        <div class="text-center channel-name pull-right">
+          Channel {{channel.channelNumber}}
         </div>
 
-      </li>
-    </ul>
+      </div>
 
-  </div>
-  <div ng-hide="conductorReady" class="text-center">
-    <button class="btn btn-lg btn-default" ng-click="conduct()">Conduct</button>
-  </div>
+    </div>
+
+  </li>
+</ul>
+
+</div>
+<div ng-hide="conductorReady" class="text-center">
+  <button class="btn btn-lg btn-default" ng-click="conduct()">Conduct</button>
+</div>
 </div>
 <div ng-hide="online" class="text-center">
   <h3>Linking to Performers...</h3>

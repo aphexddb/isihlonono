@@ -63,8 +63,6 @@ function ($scope, ConductorService, Motion, Touch) {
     };
   };
 
-
-
   // websocket callback for all messages
   ConductorService.setCallback(function(data) {
     //console.log('received data',data);
@@ -90,11 +88,6 @@ function ($scope, ConductorService, Motion, Touch) {
   // draw initial circle
   var accelCircle = new Circle('gameCanvas');
   accelCircle.draw(0, 0);
-
-  // allow taring of values
-  $scope.tare = function() {
-    Motion.tare();
-  }
 
   // subscribe to motion events
   Motion.setMotionCallback(function(motionData) {
@@ -133,6 +126,11 @@ function ($scope, ConductorService, Motion, Touch) {
 
   // start finger touch capture on element
   Touch.watchElement('touchArea');
+
+  // allow taring of values
+  $scope.tare = function() {
+    Motion.tare();
+  };
 
 }])
 

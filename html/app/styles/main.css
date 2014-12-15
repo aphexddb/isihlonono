@@ -247,6 +247,16 @@ div.connecting h1 {
 }
 .channels ul li .user-agent {
 }
+.channels ul li .active-button {
+  color: #000;
+  font-weight: bold;
+}
+.channels ul li .active-button.active-button-active {
+  background-color: hsla(54, 100%, 60%, 1);
+}
+.channels ul li .active-button.active-button-inactive {
+  background-color: hsla(112, 100%, 60%, 1);
+}
 
 #gameArea {
 }

@@ -79,6 +79,17 @@ function ($scope, $rootScope, ConductorService) {
     }
   };
 
+  // change the active state
+  $scope.setActive = function(channel, activeState) {
+    ConductorService.send({
+      event: 'toggleActive',
+      data: {
+        channel: channel,
+        active: activeState
+      }
+    });
+  };
+
 }])
 
 ;

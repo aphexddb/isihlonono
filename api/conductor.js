@@ -59,13 +59,12 @@ var initConductorInternals = function() {
 
     internals.sharedState.outputs[channelNumber] = {
       channelNumber: channelNumber,
-      outputChannel: new Channel.out(internals.server, channelNumber),
+      outputChannel: new Channel.out(internals.server, channelNumber, internals.sharedState.performers[performerId]),
       performer: internals.sharedState.performers[performerId]
     };
 
     // set performers channel #
     internals.sharedState.performers[performerId].setChannelNumber(channelNumber);
-    internals.sharedState.performers[performerId].setActive(true);
 
     // fire initial callback to performer
     initCallback(channelNumber);
@@ -135,7 +134,9 @@ var start = function(server) {
 
       // callback to send a performer it's current state
       var updateCallback = function() {
-        ws.send(JSON.stringify(internals.getChannel(channelNumber).performer));
+        ws.send(JSON.stringify({
+          performer: internals.getChannel(channelNumber).performer
+        }));
       };
 
       var updatePerformerStateCallback = function(chanNum) {
@@ -206,6 +207,9 @@ var start = function(server) {
         case 'touch':
           internals.getChannel(channelNumber).outputChannel.sendTouch(internals.getChannel(channelNumber).performer.setTouch(obj['data']));
           internals.updateConductorClientWrapper();
+          break;
+        case 'toggleActive':
+          internals.getChannel(obj['data']['channel']).performer.toggleActive(obj['data']['active']);
           break;
         default:
           internals.server.log(['conductor'], Util.format('websocket client #%d sent: %s', thisId, message));

@@ -22,9 +22,10 @@ var internals = {
 */
 
 // Channel out
-var out = function(server, channelNumber) {
+var out = function(server, channelNumber, performer) {
   this._channelNumber = channelNumber;
   this.baseAddress = '/channel'+this._channelNumber;
+  this.performer = performer;
 
   // Create OSC client
   server.log(['channel'], Util.format('channel %d (out) created, sending OSC data to %s:%d %s',
@@ -49,7 +50,10 @@ var out = function(server, channelNumber) {
         }
       ]
     });
-    internals.udp.send(buf, 0, buf.length, Config.osc.client.port, Config.osc.client.host);
+
+    if (this.performer.active) {
+      internals.udp.send(buf, 0, buf.length, Config.osc.client.port, Config.osc.client.host);
+    }
   };
 
   // send touch data for this channel
@@ -69,7 +73,10 @@ var out = function(server, channelNumber) {
       }
       ]
     });
-    internals.udp.send(buf, 0, buf.length, Config.osc.client.port, Config.osc.client.host);
+
+    if (this.performer.active) {
+      internals.udp.send(buf, 0, buf.length, Config.osc.client.port, Config.osc.client.host);
+    }
   };
 
 
