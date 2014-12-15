@@ -55,12 +55,12 @@ angular.module('isihlononoApp')
       aZ = aZ ? this._tareVal(aZ, this.tareValues.z) : 0.0;
 
       // Ensure all values are floats at fixed len
-      this.data.aX = aX.toFixed(3) * 1.0;
-      this.data.aY = aY.toFixed(3) * 1.0;
-      this.data.aZ = aZ.toFixed(3) * 1.0;
-      this.data.alpha = alpha ? alpha.toFixed(3) * 1.0 : 0.0;
-      this.data.beta = beta ? beta.toFixed(3) * 1.0 : 0.0;
-      this.data.gamma = gamma ? gamma.toFixed(3) * 1.0 : 0.0;
+      this.data.aX = aX;
+      this.data.aY = aY;
+      this.data.aZ = aZ;
+      this.data.alpha = alpha ? alpha : 0.0;
+      this.data.beta = beta ? beta : 0.0;
+      this.data.gamma = gamma ? gamma : 0.0;
 
       // fire callback if online and callback exists
       if (this.callback !== null && this.online) {

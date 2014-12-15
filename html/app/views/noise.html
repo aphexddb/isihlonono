@@ -11,20 +11,23 @@
             <div ng-show="channel.state == 'open'">
               <div class="data data-acceleration">
                 <span class="title">Acceleration:</span>
-                <span class="label">X</span> <span class="data">{{channel.motionData[0] | _.str: 'pad':[3, '0'] }}</span>
-                <span class="label">X</span> <span class="data">{{channel.motionData[1] | _.str: 'pad':[3, '0'] }}</span>
-                <span class="label">Z</span> <span class="data">{{channel.motionData[2] | _.str: 'pad':[3, '0'] }}</span>
+                <span class="label">X</span> <span class="data">{{channel.motionData[0] | number: 3 }}</span>
+                <span class="label">X</span> <span class="data">{{channel.motionData[1] | number: 3 }}</span>
+                <span class="label">Z</span> <span class="data">{{channel.motionData[2] | number: 3 }}</span>
               </div>
               <div class="data data-rotation">
                 <span class="title">Rotation:</span>
-                <span class="label">alpha</span> <span class="data">{{channel.motionData[3] | _.str: 'pad':[3, '0'] }}</span>
-                <span class="label">beta</span>  <span class="data">{{channel.motionData[4] | _.str: 'pad':[3, '0'] }}</span>
-                <span class="label">gamma</span> <span class="data">{{channel.motionData[5] | _.str: 'pad':[3, '0'] }}</span>
+                <span class="label">alpha</span> <span class="data">{{channel.motionData[3] | number: 3 }}</span>
+                <span class="label">beta</span>  <span class="data">{{channel.motionData[4] | number: 3 }}</span>
+                <span class="label">gamma</span> <span class="data">{{channel.motionData[5] | number: 3 }}</span>
               </div>
               <div class="data data-position">
                 <span class="title">Position:</span>
-                <span class="label">X</span> <span class="data">{{channel.motionData[6] | _.str: 'pad':[3, '0'] }}</span>
-                <span class="label">Y</span>  <span class="data">{{channel.motionData[7] | _.str: 'pad':[3, '0'] }}</span>
+                <span class="label">X</span> <span class="data">{{channel.touchData[0] | number: 3 }}</span>
+                <span class="label">Y</span> <span class="data">{{channel.touchData[1] | number: 3 }}</span>
+                <span class="label">deltaX</span> <span class="data">{{channel.touchData[2] | number: 3 }}</span>
+                <span class="label">deltaY</span> <span class="data">{{channel.touchData[3] | number: 3 }}</span>
+                <span class="label">accel</span> <span class="data">{{channel.touchData[4] | number: 3 }}</span>
               </div>
             </div>
           </div>

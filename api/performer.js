@@ -95,12 +95,18 @@ function Performer(server, id, updateCallback) {
   // 0,1,2 acceleration (aX, xY, aZ)
   // 3,4,5 rotation (alpha, beta, gamma)
   this.motionData = new Array(6);
+  for (var i=0; i < this.motionData.length; i++) {
+    this.motionData[i] = 0.0;
+  }
 
   // Touch data array format:
   // 0,1   position (x, y)
   // 2,3   delta (deltaX, deltaY)
   // 4     velocity
   this.touchData = new Array(5);
+  for (var i=0; i < this.touchData.length; i++) {
+    this.touchData[i] = 0.0;
+  }
 
   this.setMotion = function(motionData) {
 

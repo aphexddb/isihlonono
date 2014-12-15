@@ -7,8 +7,7 @@ angular.module('isihlononoApp', [
   'ngRoute',
   'ngSanitize',
   'ngTouch',
-  'ui.router',
-  'underscore.string'
+  'ui.router'
 ])
 
 .config(['$stateProvider', '$urlRouterProvider',
