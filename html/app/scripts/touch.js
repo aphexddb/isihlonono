@@ -59,13 +59,17 @@ angular.module('isihlononoApp')
     };
 
     // convert mouse coords
-    this.rangeMouseCoords = function(x, xMax, y, yMax) {
-      var outputLow = 0.0;
-      var outputHigh = 1.0;
-      var inputLow = 0;
+    this.rangeMouseCoords = function(x, y) {
+
+      // limit coodiantes to window size
+      if (x < 0 ) { x = 0; }
+      if (x > self.width) { x = self.width };
+      if (y < 0 ) { y = 0; }
+      if (y > self.height) { y = self.height };
+
       return {
-        x: self.convertRange0to1(x, xMax),
-        y: self.convertRange0to1(y, yMax)
+        x: self.convertRange0to1(x, self.width),
+        y: self.convertRange0to1(y, self.height)
       };
     };
 
@@ -84,7 +88,7 @@ angular.module('isihlononoApp')
     };
 
     // start collecting mouse movement data
-    document.onmousemove = this.getMouseXY;
+    //document.onmousemove = this.getMouseXY;
 
     // if touch should be captured
     this.setOnline = function(onlineState) {
@@ -103,7 +107,7 @@ angular.module('isihlononoApp')
       this.hammertime.on('pan', function(ev) {
 
         // convert current mouse position to 0-1 range
-        var rangedMouse = self.rangeMouseCoords(self.mousePosition.x, self.width, self.mousePosition.y, self.height);
+        var rangedMouse = self.rangeMouseCoords(ev.center.x, ev.center.y);
 
         // convert deltas to 0-1 range
         var rangedDelta = self.rangeDeltaValues(ev.deltaX, ev.deltaY);
