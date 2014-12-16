@@ -1,4 +1,4 @@
-#N canvas -1341 83 705 662 10;
+#N canvas 630 144 705 662 10;
 #X declare -lib mrpeach;
 #X obj -15 53 unpackOSC;
 #X text 83 24 Receive motion data from isihlonono;
@@ -15,15 +15,15 @@
 #X msg 285 443 \$4;
 #X msg 382 443 \$5;
 #X obj 199 496 vsl 15 128 -1 1 0 0 empty empty empty 0 -9 0 10 -203904
--1 -1 6197 1;
+-1 -1 8533 1;
 #X obj 112 498 vsl 15 128 0 1 0 0 empty empty empty 0 -9 0 10 -203904
--1 -1 9537 1;
+-1 -1 0 1;
 #X obj 52 495 vsl 15 128 0 1 0 0 empty empty empty 0 -9 0 10 -203904
--1 -1 3660 1;
+-1 -1 0 1;
 #X obj 285 495 vsl 15 128 -1 1 0 0 empty empty empty 0 -9 0 10 -203904
--1 -1 6881 1;
-#X obj 382 495 vsl 15 128 0 10 0 0 empty empty empty 0 -9 0 10 -203904
--1 -1 244 1;
+-1 -1 5362 1;
+#X obj 382 495 vsl 15 128 0 6 0 0 empty empty empty 0 -9 0 10 -203904
+-1 -1 728 1;
 #X msg -6 168 \$1;
 #X floatatom -6 192 5 0 0 0 aX - -;
 #X floatatom 50 192 5 0 0 0 aY - -;
@@ -40,21 +40,21 @@
 #X text 5 215 comment;
 #X text 11 358 Acceleration Data;
 #X obj 110 223 vsl 15 128 -10 10 0 0 empty empty empty 0 -9 0 10 -203904
--1 -1 12553 1;
+-1 -1 111 1;
 #X obj 50 223 vsl 15 128 -10 10 0 0 empty empty empty 0 -9 0 10 -203904
--1 -1 6424 1;
+-1 -1 6285 1;
 #X obj -6 221 vsl 15 128 -10 10 0 0 empty empty empty 0 -9 0 10 -203904
--1 -1 6474 1;
+-1 -1 6364 1;
 #X obj 194 223 vsl 15 128 -10 10 0 0 empty empty empty 0 -9 0 10 -203904
--1 -1 6350 1;
+-1 -1 6422 1;
 #X obj 264 222 vsl 15 128 -10 10 0 0 empty empty empty 0 -9 0 10 -203904
--1 -1 6350 1;
+-1 -1 6448 1;
 #X obj 339 222 vsl 15 128 -10 10 0 0 empty empty empty 0 -9 0 10 -203904
--1 -1 6350 1;
+-1 -1 6308 1;
 #X text 450 37 <-- channels 0-10 are broadcast;
 #X obj 225 383 receive touch;
 #X obj 225 127 receive motion;
-#X text 79 488;
+#X text 79 488 comment;
 #X obj 329 75 routeOSC /touch;
 #X obj 329 100 send touch;
 #X obj 435 75 routeOSC /motion;
