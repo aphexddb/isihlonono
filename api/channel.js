@@ -17,6 +17,10 @@ var internals = {
   udp: dgram.createSocket('udp4')
 };
 
+internals.sendOSC = function(buf) {
+  internals.udp.send(buf, 0, buf.length, Config.osc.client.port, Config.osc.client.host);
+};
+
 /*
 * Api code
 */
@@ -26,13 +30,16 @@ var out = function(server, channelNumber, performer) {
   this._channelNumber = channelNumber;
   this.baseAddress = '/channel'+this._channelNumber;
   this.performer = performer;
+  this.buffer = {
+    motion: null,
+    touch: null
+  };
 
   // Create OSC client
-  server.log(['channel'], Util.format('channel %d (out) created, sending OSC data to %s:%d %s',
+  server.log(['channel'], Util.format('channel %d (out) created, sending OSC data to %s:%d',
     this._channelNumber,
     Config.osc.client.host,
-    Config.osc.client.port,
-    this.address));
+    Config.osc.client.port));
 
     // send motion data for this channel
   this.sendMotion = function(motionData) {
@@ -41,7 +48,7 @@ var out = function(server, channelNumber, performer) {
     // 0,1,2 acceleration (aX, xY, aZ)
     // 3,4,5 rotation (alpha, beta, gamma)
 
-    var buf = Osc.toBuffer({
+    this.buffer.motion = Osc.toBuffer({
       //timetag: 12345,
       elements: [
         {
@@ -52,7 +59,7 @@ var out = function(server, channelNumber, performer) {
     });
 
     if (this.performer.active) {
-      internals.udp.send(buf, 0, buf.length, Config.osc.client.port, Config.osc.client.host);
+      internals.sendOSC(this.buffer.motion);
     }
   };
 
@@ -64,7 +71,7 @@ var out = function(server, channelNumber, performer) {
     // 2,3   delta (deltaX, deltaY)
     // 4     velocity
 
-    var buf = Osc.toBuffer({
+    this.buffer.touch = Osc.toBuffer({
       //timetag: 12345,
       elements: [
       {
@@ -75,7 +82,7 @@ var out = function(server, channelNumber, performer) {
     });
 
     if (this.performer.active) {
-      internals.udp.send(buf, 0, buf.length, Config.osc.client.port, Config.osc.client.host);
+      internals.sendOSC(this.buffer.touch);
     }
   };
 
