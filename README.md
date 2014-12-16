@@ -94,7 +94,9 @@ Music
 * [HighC](http://highc.org/)
 * [Audacity](http://audacity.sourceforge.net/)
 
-Web
+Code
 
+* [supercollider](http://supercollider.github.io/)
+* [Lich.js](https://github.com/aphexddb/Lich.js)
 * [Angular Performance Tuning](http://www.slideshare.net/dragosrusu/angularjs-overcoming-performance-issues-limits)
 * [HSL Color Picker](http://hslpicker.com/)
