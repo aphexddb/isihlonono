@@ -96,6 +96,7 @@ Music
 
 Code
 
+* [Creating sound waves with JavaScript](http://js.do/blog/sound-waves-with-javascript/)
 * [supercollider](http://supercollider.github.io/)
 * [Lich.js](https://github.com/aphexddb/Lich.js)
 * [Angular Performance Tuning](http://www.slideshare.net/dragosrusu/angularjs-overcoming-performance-issues-limits)
