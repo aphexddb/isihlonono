@@ -11,16 +11,29 @@
 
             <div ng-show="channel.state == 'open'">
 
-              <span class="user-agent">{{channel.userAgent}}</span>
-
-              &raquo;
-
               <label>
                 <input type="checkbox"
                 ng-model="channel.active"
                 ng-change="setActive(channel.channelNumber, channel.active)">
-                Activate Performer (Send OSP Data)
+                Activate
               </label>
+
+              <label>
+                <select type="text" ng-model="channel.mood" ng-change="changeMood(channel.performerId, channel.mood)" ng-cloak>
+                  <option value="zen-like">zen-like</option>
+                  <option value="serene">serene</option>
+                  <option value="calm">calm</option>
+                  <option value="indifferent">indifferent</option>
+                  <option value="fidgety">fidgety</option>
+                  <option value="hungry">hungry</option>
+                  <option value="erratic">erratic</option>
+                  <option value="shaking">shaking</option>
+                  <option value="violent">violent</option>
+                </select>
+                Set Mood
+              </label>
+
+              (performer: <span class="user-agent">{{channel.userAgent}}</span>)
 
               <div class="data data-acceleration">
                 <span class="title">Acceleration:</span>
@@ -41,6 +54,9 @@
                 <span class="label">deltaX</span> <span class="data">{{channel.touchData[2] | number: 3 }}</span>
                 <span class="label">deltaY</span> <span class="data">{{channel.touchData[3] | number: 3 }}</span>
                 <span class="label">accel</span> <span class="data">{{channel.touchData[4] | number: 3 }}</span>
+              </div>
+              <div class="data data-mood">
+
               </div>
 
             </div>

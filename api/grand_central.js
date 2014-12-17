@@ -120,9 +120,6 @@ var start = function(server) {
           internals.performers[thisId].setUserAgent(obj['data']['ua']);
           internals.clients[thisId].setPerformer(p);
 
-          // update client with the initial performer data
-          p.updateClient();
-
           // allocate first avilable channel to performer (if any channels are open)
           self.channelNumber = Channel.getOpenChannel();
           if (self.channelNumber > -1) {
@@ -130,6 +127,9 @@ var start = function(server) {
             p.setChannel(this.channel);
             internals.server.log(['grand_central'], Util.format('output channel %d has been assigned', self.channelNumber));
           }
+
+          // update client with the initial performer data
+          p.updateClient();
 
           // let the conductor know
           internals.updateConductor();
@@ -191,6 +191,14 @@ var start = function(server) {
           }
 
           break;
+
+          // find a performer matching the channel and change its mood its active status
+          case 'changeMood':
+            // update the performer
+            internals.performers[obj['data']['performerId']].setMood(obj['data']['mood']);
+            // update the conductor with new state
+            internals.updateConductor();
+            break;
 
         // handle touch data events
         case 'touch':

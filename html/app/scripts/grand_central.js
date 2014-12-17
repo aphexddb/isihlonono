@@ -57,12 +57,10 @@ function ($rootScope, $timeout) {
       }
     };
 
-    /*
     ws.onerror = function(event) {
-    var readyState = event.currentTarget.readyState;
-    console.log('Grand Central:',readyStates[readyState]);
+      var readyState = event.currentTarget.readyState;
+      console.log('Grand Central:',readyStates[readyState]);
     };
-    */
   };
 
   Service.setOnlineStateChangeCallback = function(callback) {
@@ -78,7 +76,12 @@ function ($rootScope, $timeout) {
   };
 
   Service.send = function(request) {
-    ws.send(JSON.stringify(request));
+    // only send if connection is open
+    if (ws.readyState == 1) {
+      ws.send(JSON.stringify(request));
+    } else {
+      console.log('Grand Central: unable to send ('+readyStates[ws.readyState]+')');
+    }
   };
 
   return Service;

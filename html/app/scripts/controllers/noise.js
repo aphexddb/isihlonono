@@ -48,7 +48,8 @@ function ($scope, $rootScope, GrandCentralService) {
             motionData: null,
             touchData: null,
             mood: null,
-            userAgent: null
+            userAgent: null,
+            performerId: null
           };
 
           var openChannel = _.find(data.data['performers'], function(p) {
@@ -60,7 +61,8 @@ function ($scope, $rootScope, GrandCentralService) {
                 motionData: p.motionData,
                 touchData: p.touchData,
                 mood: p.mood,
-                userAgent: p.userAgent
+                userAgent: p.userAgent,
+                performerId: p.id
               };
             }
           });
@@ -79,13 +81,24 @@ function ($scope, $rootScope, GrandCentralService) {
   // connect to conductor
   GrandCentralService.connect();
 
-  // change the active state
+  // change the active state for a performer
   $scope.setActive = function(channel, activeState) {
     GrandCentralService.send({
       event: 'toggleChannelOutput',
       data: {
         channel: channel,
         active: activeState
+      }
+    });
+  };
+
+  // change the current mood for a performer
+  $scope.changeMood = function(performerId, mood) {
+    GrandCentralService.send({
+      event: 'changeMood',
+      data: {
+        performerId: performerId,
+        mood: mood
       }
     });
   };

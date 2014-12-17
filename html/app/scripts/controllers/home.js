@@ -33,14 +33,12 @@ function ($scope, GrandCentralService, Motion, Touch) {
   $scope.motionData = null;
   var strokeStyle = 'hsla(360, 100%, 100%, 1)'; // black
 
-  /*
-
   // circle object
   var Circle = function(canvasId) {
     this.c = document.getElementById(canvasId);
     this.ctx = this.c.getContext('2d');
-    this.centerX = this.c.width / 2;
-    this.centerY = this.c.height / 2;
+    this.centerX = Math.floor(this.c.width / 2);
+    this.centerY = Math.floor(this.c.height / 2);
     this.radius = 30;
     this.startAngle = 0;
     this.endAngle = 2*Math.PI;
@@ -49,22 +47,23 @@ function ($scope, GrandCentralService, Motion, Touch) {
 
       // clear canvas
       this.ctx.clearRect(0, 0, this.c.width, this.c.height);
+      this.ctx.lineJoin = 'round';
 
-      this.centerX = this.c.width / 2;
-      this.centerY = this.c.height / 2;
+      this.centerX = Math.floor(this.c.width / 2);
+      this.centerY = Math.floor(this.c.height / 2);
       this.ctx.beginPath();
 
       var centerX = this.centerX + xDelta;
       var centerY = this.centerY + yDelta;
       var radius = Math.abs(this.radius + radiusDelta);
 
+      //this.ctx.moveTo(centerY, centerX);
       this.ctx.arc(centerX, centerY, radius, this.startAngle, this.endAngle);
       this.ctx.lineWidth = 5;
       this.ctx.strokeStyle = strokeStyle;
       this.ctx.stroke();
     };
   };
-  */
 
   // websocket callback for all messages
   GrandCentralService.setOnMessageCallback(function(data) {
@@ -91,11 +90,9 @@ function ($scope, GrandCentralService, Motion, Touch) {
   // connect to the conductor
   GrandCentralService.connect();
 
-  /*
   // draw initial circle
   var accelCircle = new Circle('gameCanvas');
   accelCircle.draw(0, 0);
-  */
 
   // subscribe to motion events
   Motion.setMotionCallback(function(motionData) {
@@ -103,11 +100,11 @@ function ($scope, GrandCentralService, Motion, Touch) {
     $scope.$apply(function () {
       // update local scope with motion data
       $scope.motionData = motionData;
-      /*
-      accelCircle.draw(motionData[0] * tweakFactor,
-        motionData[1] * tweakFactor,
-        motionData[2] * tweakFactor);
-      */
+
+      // magnify the values being sent to draw
+      var moveTweak = 10;
+      var sizeTweak = 5;
+      accelCircle.draw((motionData[0] * moveTweak), (motionData[1] * moveTweak), (motionData[2] * sizeTweak));
 
       // send motion data to conductor
       GrandCentralService.send({

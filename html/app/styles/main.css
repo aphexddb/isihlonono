@@ -204,6 +204,7 @@ div.connecting h1 {
 /*
  * Channels
  */
+
  .channels ul {
 
  }
@@ -218,6 +219,9 @@ div.connecting h1 {
 }
 .channels ul li .channel-wrapper {
   padding-left: 5px;
+}
+.channels ul li input {
+  color: #000;
 }
 .channels .open {
   background-color: hsla(360, 100%, 100%, 0.25);
@@ -270,9 +274,6 @@ div.connecting h1 {
 
 #gameCanvas {
   margin:auto;
-  background-color: #000;
-  height: 200px;
-  width: 200px;
 }
 
 #statsPanel {

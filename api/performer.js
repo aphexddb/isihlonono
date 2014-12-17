@@ -24,7 +24,7 @@ var createRange = function(begin, end) {
 };
 
 var internals = {
-  moodTypes: ['calm','indifferent','violent'],
+  moodTypes: ['mellow','indifferent','violent'],
   defaultHue: 0,
   hues: createRange(0,360),
   server: null
@@ -90,6 +90,11 @@ function Performer(server, id, updateCallback) {
 
   this.toggleActive = function(activeState) {
     this.active = (activeState == "true" || activeState == true);
+    this.updateCallback();
+  };
+
+  this.setMood = function(mood) {
+    this.mood = mood;
     this.updateCallback();
   };
 

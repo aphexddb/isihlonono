@@ -3,13 +3,14 @@
     <div class="performer text-center" style="background-color: hsla({{performer.color}}, 100%, 50%, 1); color: hsla({{performer.altColor}}, 100%, 50%, 1);">
 
       <h1>You are {{performer.mood}}</h1>
-      <h3>Move your device in an appropiate fashion.</h3>
+
 
       <br/>
 
       <div id=”gameArea” class="text-center">
-        <canvas id="gameCanvas"></canvas>
+        <canvas id="gameCanvas" width="250" height="250"></canvas>
         <div id=”statsPanel”>
+          <h3>Move your device in an appropiate fashion.</h3>
           <span>You are Channel {{performer.channelNumber}}</span>
         </div>
       </div>
