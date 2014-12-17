@@ -89,7 +89,7 @@ function Performer(server, id, updateCallback) {
   };
 
   this.toggleActive = function(activeState) {
-    this.active = (activeState == "true" || activeState == true);    
+    this.active = (activeState == "true" || activeState == true);
     this.updateCallback();
   };
 
@@ -143,10 +143,7 @@ function Performer(server, id, updateCallback) {
     }
 
     if (this.active) {
-      console.log('touch sent active',typeof this.active);
       this.channel.sendTouch(this.touchData);
-    } else {
-      console.log('touch sent NOT active');
     }
 
   };
