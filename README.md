@@ -5,24 +5,22 @@ Making noise one grain at a time.
 
 ## Asthetics
 
-* The control of the performance is managed by the performers. They are like conductors.
-* Conductors can open up sesions (humans with devices) for controlling specific things such as a sample grain, etc.
-* Conductors can treat the audience like a patch panel, and choose to engage specific humans for specific noises
+* The creators of noise are conductors. They control the performance.
+* Members of the audience (humans with devices) are considered performers.
+* Conductors make use of performers as input channels for controlling specific things such as a sample grain, etc.
+* Conductors can choose to engage specific performers for specific noises, or request a change in mood.
 
 ## Todo
 
-### Web hackery
+### Web and Server Hackery
 
 * Some soft of wifi router setup that forwards all traffic to web app
     * wifi name "Make Music" or something fun
 * Conductor UI
-    * Select MOOD. Ex: calm/indifferent/violent
     * Set a message to display on performer UI
-* Have a PERFORMER web app
-  * displays MOOD that is set by CONDUCTOR
-    * animated .GIF ?
-    * text ?
+* Have a PERFORMER web app  
   * Display message from conductor  
+  * Animated .GIF for mood maybe?
 * Wild speculation thats probably hard
   * Capture audio from web page and send it to server (samples)
 
@@ -31,6 +29,15 @@ Making noise one grain at a time.
 * Patch that accepts the below OSC data
   * Handle at least 2 input channels (two humans)
 * See [audio_ideas.md](audio_ideas.md)
+
+## Running
+
+**isihlonono** requires [node.js](http://nodejs.org/). To run the server, run the following commands from this directory:
+
+    npm install
+    npm start
+
+Note: the install step may take some time, especially on a slow connection.
 
 ## OSC Output
 
