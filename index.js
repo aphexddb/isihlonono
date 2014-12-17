@@ -4,15 +4,17 @@ var colors = require('colors');
 var Util = require('util');
 var Server = require('./server');
 var Config = require('./config');
-//var Osc = require('node-osc');
-var Conductor = require('./api/conductor');
+//var Conductor = require('./api/conductor');
+var GrandCentral = require('./api/grand_central');
 
 console.log('isihlonono'.magenta.bold,'is about to make some'.magenta,'noise'.magenta.bold.underline,'!'.magenta);
 
 Server.start(function () {
 
   // start upstream websocket server and access its shared state
-  var conductorSharedState = Conductor.start(Server);
+  //var conductorSharedState = Conductor.start(Server);
+
+  GrandCentral.start(Server);
 
   /*
   // OSC server

@@ -3,8 +3,9 @@
 angular.module('isihlononoApp')
 
 .constant('GRAVITY', 9.80665)
+.constant('SAMPLE_RATE_MS', 50)
 
-.factory('Motion', [ 'GRAVITY', function (GRAVITY) {
+.factory('Motion', [ 'SAMPLE_RATE_MS', function (SAMPLE_RATE_MS) {
 
   // We return this object to anything injecting our service
   var Service = function() {
@@ -45,8 +46,8 @@ angular.module('isihlononoApp')
     this._dmHdlr = function(aX, aY, aZ, alpha, beta, gamma) {
       var currDM = new Date().getTime();
 
-      // only send data every 100ms
-      if (currDM < this.data.lastDM + 100) {return;}
+      // only send data every X milliseconds
+      if (currDM < this.data.lastDM + SAMPLE_RATE_MS) {return;}
       this.data.lastDM = currDM;
 
       // Tare Accel data

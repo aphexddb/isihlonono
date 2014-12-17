@@ -35,9 +35,9 @@ var internals = {
  */
 
  // see if its a number
-function isNumber(obj) {
+var isNumber = function(obj) {
   return !isNaN(parseFloat(obj))
-}
+};
 
 // find a random hue
 var randomHue = function() {
@@ -66,31 +66,37 @@ function Performer(server, id, updateCallback) {
   if (internals.server === null) {
     internals.server = server;
   }
-
-  internals.server.log(['performer'], Util.format('performer #%d created', id));
-
-  this.setChannelNumber = function(channelNumber) {
-    this.channelNumber = channelNumber;
-  };
-
-  this.toggleActive = function(state) {
-    this.active = state;
-    this.updateCallback();
-  };
-
-  this.setUserAgent = function(userAgent) {
-    this.userAgent = userAgent;
-  };
-
+  var self = this;
   this.id = id;
-  this.channelNumber = null;
+  this.updateCallback = updateCallback;
+  this.channelNumber = -1;
   this.mood = internals.moodTypes[1];
   this.active = false;
   this.color = randomHue();
   this.altColor = opposingColor(this.color);
   this.motionData = {};
-  this.updateCallback = updateCallback;
   this.userAgent = '';
+
+  internals.server.log(['performer'], Util.format('performer #%d created', id));
+
+  this.updateClient = function() {
+    this.updateCallback();
+  };
+
+  this.setChannel = function(channel) {
+    this.channel = channel;
+    this.channelNumber = this.channel.channelNumber;
+  };
+
+  this.toggleActive = function(activeState) {
+    this.active = (activeState == "true" || activeState == true);    
+    this.updateCallback();
+  };
+
+  this.setUserAgent = function(userAgent) {
+    this.userAgent = userAgent;
+    this.updateCallback();
+  };
 
   // Motion data array format:
   // 0,1,2 acceleration (aX, xY, aZ)
@@ -120,8 +126,9 @@ function Performer(server, id, updateCallback) {
       }
     }
 
-    return this.motionData;
-
+    if (this.active) {
+      this.channel.sendMotion(this.motionData);
+    }
   };
 
   this.setTouch = function(touchData) {
@@ -135,7 +142,12 @@ function Performer(server, id, updateCallback) {
       }
     }
 
-    return this.touchData;
+    if (this.active) {
+      console.log('touch sent active',typeof this.active);
+      this.channel.sendTouch(this.touchData);
+    } else {
+      console.log('touch sent NOT active');
+    }
 
   };
 
@@ -147,10 +159,6 @@ function Performer(server, id, updateCallback) {
     return this.touchData;
   };
 
-  this.setState = function(motionObject) {
-
-  }
-
 }
 
-module.exports.Performer = Performer;
+module.exports = Performer;

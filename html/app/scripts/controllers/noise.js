@@ -2,87 +2,87 @@
 
 angular.module('isihlononoApp')
 
-.controller('NoiseCtrl', ['$scope','$rootScope', 'ConductorService',
-function ($scope, $rootScope, ConductorService) {
+.controller('NoiseCtrl', ['$scope','$rootScope', 'GrandCentralService',
+function ($scope, $rootScope, GrandCentralService) {
   $scope.conductorReady = false;
-  var maxChannels = 10;
-  $scope.channels = new Array(maxChannels);
-  // init channels as objects
-  for (var i=0; i<maxChannels; i++) {
-    $scope.channels[i] = {};
-  }
+
+  // init 10 channels as objects to start
+  $scope.channels = [];
 
   // set the conductor online callback on the root scope
-  ConductorService.setOnlineCallback(function(online) {
+  GrandCentralService.setOnlineStateChangeCallback(function(online) {
     $scope.$apply(function () {
       $rootScope.online = online;
-      if (!online) {
-        $scope.conductorReady = false;
+      if (online) {
+        // Tell grand central conductor is ready
+        GrandCentralService.send({
+          event: 'conductorOnline',
+          data: null
+        });
       }
     });
   });
 
   // websocket callback for all messages
-  ConductorService.setCallback(function(data) {
-    //console.log('received data',data);
-
-    // update channels with performer information
-    if (data.performers !== undefined) {
-      $scope.$apply(function () {
-
-        var gotData = new Array(maxChannels);
-        for (var id in data.performers){
-          if (data.performers.hasOwnProperty(id)) {
-            $scope.channels[data.performers[id].channelNumber] = data.performers[id];
-            //console.log('channel #',data.performers[id].channelNumber,'data:',data.performers[id]);
-            gotData[data.performers[id].channelNumber] = 1;
-          }
-        }
-
-        // set channel state
-        for (var i=0; i<maxChannels; i++) {
-          if (gotData[i] === 1) {
-            $scope.channels[i].state = 'open';
-          } else {
-            // create dummy channel placeholder if the channel doesn't exist
-            $scope.channels[i] = {
-              state: 'closed',
-              active: false,
-              channelNumber: i
-            };
-          }
-        }
-
-      });
-    }
+  GrandCentralService.setOnMessageCallback(function(data) {
 
     // activate the conductor!
-    if (data.conductorReady !== undefined) {
+    if (data.event == 'conductorReady') {
       $scope.$apply(function () {
         $scope.conductorReady = true;
       });
-    };
+    }
+
+    // update channels with performer information
+    else if (data.event == 'performers') {
+      $scope.$apply(function () {
+
+        // for each channel, get its data and state
+        for (var i=0; i<data.data['channels'].length; i++) {
+          var channelNumber = data.data['channels'][i].channelNumber;
+
+          var channelData = {
+            state: 'closed',
+            active: false,
+            channelNumber: channelNumber,
+            motionData: null,
+            touchData: null,
+            mood: null,
+            userAgent: null
+          };
+
+          var openChannel = _.find(data.data['performers'], function(p) {
+            if (p.channelNumber === channelNumber) {
+              channelData = {
+                state: 'open',
+                active: (p.active == "true" || p.active == true),
+                channelNumber: channelNumber,
+                motionData: p.motionData,
+                touchData: p.touchData,
+                mood: p.mood,
+                userAgent: p.userAgent
+              };
+            }
+          });
+
+          $scope.channels[channelNumber] = channelData;
+        }
+      });
+    }
+
+    else {
+      console.log('received data',data);
+    }
 
   });
 
   // connect to conductor
-  ConductorService.connect();
-
-  // Tell conductor we are ready to make noise
-  $scope.conduct = function() {
-    if ($rootScope.online) {
-      // send event to conductor
-      ConductorService.send({
-        event: 'conductorOnline',
-        data: null
-      });
-    }
-  };
+  GrandCentralService.connect();
 
   // change the active state
   $scope.setActive = function(channel, activeState) {
-    ConductorService.send({
-      event: 'toggleActive',
+    GrandCentralService.send({
+      event: 'toggleChannelOutput',
       data: {
         channel: channel,
         active: activeState

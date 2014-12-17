@@ -2,36 +2,38 @@
 
 angular.module('isihlononoApp')
 
-.controller('HomeCtrl', ['$scope','$rootScope', 'ConductorService', 'Motion', 'UA', 'Touch',
-function ($scope, $rootScope, ConductorService, Motion, UA, Touch) {
+.controller('HomeCtrl', ['$scope','$rootScope', 'GrandCentralService', 'Motion', 'UA', 'Touch',
+function ($scope, $rootScope, GrandCentralService, Motion, UA, Touch) {
 
   // set the conductor online callback on the root scope
-  ConductorService.setOnlineCallback(function(onlineState) {
+  GrandCentralService.setOnlineStateChangeCallback(function(onlineState) {
     $scope.$apply(function () {
       $rootScope.online = onlineState;
 
       // tell conductor we are a performer
-      ConductorService.sendNow({
+      GrandCentralService.send({
         event: 'performerOnline',
         data: {
           ua: UA.toString()
         }
       });
 
-      // set online state for touch events
-      Touch.setOnline(onlineState);
-
     });
   });
 
+  // set online state for motion and touch events
+  Touch.setOnline(false);
+  Motion.setOnline(false);
+
 }])
 
-
-.controller('ClientCtrl', ['$scope', 'ConductorService', 'Motion', 'Touch',
-function ($scope, ConductorService, Motion, Touch) {
+.controller('ClientCtrl', ['$scope', 'GrandCentralService', 'Motion', 'Touch',
+function ($scope, GrandCentralService, Motion, Touch) {
   $scope.performer = null;
   $scope.motionData = null;
   var strokeStyle = 'hsla(360, 100%, 100%, 1)'; // black
+
+  /*
 
   // circle object
   var Circle = function(canvasId) {
@@ -62,32 +64,38 @@ function ($scope, ConductorService, Motion, Touch) {
       this.ctx.stroke();
     };
   };
+  */
 
   // websocket callback for all messages
-  ConductorService.setCallback(function(data) {
-    //console.log('received data',data);
+  GrandCentralService.setOnMessageCallback(function(data) {
 
-    // update performer information
-    if (data.performer !== undefined) {
+    if (data.event == 'performer') {
       $scope.$apply(function () {
-        $scope.performer = data.performer;
-        strokeStyle = 'hsla('+data.performer.altColor+', 100%, 50%, 1)';
+        $scope.performer = data.data;
+        strokeStyle = 'hsla('+$scope.performer.altColor+', 100%, 50%, 1)';
+
+        // enable data emisson once active
+        if ($scope.performer.active) {
+          Touch.setOnline(true);
+          Motion.setOnline(true);
+        }
       });
     }
 
-    // conductor is ready to accept motion data
-    if (data.acceptInput !== undefined) {
-      console.log('Conductor is ready to accept input');
-      Motion.setOnline(true);
-    };
+    else {
+      console.log('received data', data);
+    }
+
   });
 
   // connect to the conductor
-  ConductorService.connect();
+  GrandCentralService.connect();
 
+  /*
   // draw initial circle
   var accelCircle = new Circle('gameCanvas');
   accelCircle.draw(0, 0);
+  */
 
   // subscribe to motion events
   Motion.setMotionCallback(function(motionData) {
@@ -95,12 +103,14 @@ function ($scope, ConductorService, Motion, Touch) {
     $scope.$apply(function () {
       // update local scope with motion data
       $scope.motionData = motionData;
+      /*
       accelCircle.draw(motionData[0] * tweakFactor,
         motionData[1] * tweakFactor,
         motionData[2] * tweakFactor);
+      */
 
       // send motion data to conductor
-      ConductorService.send({
+      GrandCentralService.send({
         event: 'motion',
         data: [motionData[0],motionData[1],motionData[2],motionData[3],motionData[4],motionData[5]]
       });
@@ -112,11 +122,7 @@ function ($scope, ConductorService, Motion, Touch) {
     $scope.$apply(function () {
       $scope.touch = touchData;
 
-      // data array format:
-      // 0,1   position (x, y)
-      // 2,3   delta (deltaX, deltaY)
-      // 4     velocity
-      ConductorService.send({
+      GrandCentralService.send({
         event: 'touch',
         data: [touchData.x, touchData.y, touchData.deltaX, touchData.deltaY, touchData.velocity]
       });
