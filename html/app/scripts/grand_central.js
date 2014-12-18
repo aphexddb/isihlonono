@@ -53,7 +53,9 @@ function ($rootScope, $timeout) {
 
     ws.onmessage = function(message) {
       if (onMessageCallback !== null) {
-        onMessageCallback(JSON.parse(message.data));
+        if (message.data !== 'grand_central_keepalive') {
+          onMessageCallback(JSON.parse(message.data));
+        }
       }
     };
 

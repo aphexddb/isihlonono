@@ -17,6 +17,7 @@ var Channel = require('./channel');
 */
 
 var internals = {
+  keepAliveSeconds: 15,
   clientId: 0,
   conductor: null,
   clients: {},
@@ -99,6 +100,18 @@ var performerArrival = function(ws, clientId, userAgent) {
   p.updateClient();
 };
 
+// start 30 second keepalive
+var startHeartbeat = function(ws, clientId) {
+  internals.server.log(['grand_central'], Util.format('keepalive created for client #%d every %d seconds',clientId, internals.keepAliveSeconds));
+  var intervalId = setInterval(function() {
+    if (ws.readyState == 1) {
+      ws.send('grand_central_keepalive');
+    } else {
+      clearInterval(intervalId);
+    }
+  }, internals.keepAliveSeconds * 1000 );
+};
+
 // start websocket server
 var start = function(server) {
   internals.server = server;
@@ -126,6 +139,9 @@ var start = function(server) {
     var self = this;
 
     internals.server.log(['grand_central'], Util.format('ws client #%d connected', thisId));
+
+    // start sending keepalive
+    startHeartbeat(ws, thisId);
 
     // add a new client
     internals.clients[thisId] = new Client(ws, thisId);
