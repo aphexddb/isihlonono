@@ -12,14 +12,13 @@ var Util = require('util');
 */
 
 var internals = {
-  server: null
 };
 
 /*
 * Api code
 */
 
-var Client = function(server, ws, id) {
+var Client = function(ws, id) {
   var self = this;
   this.id = id;
   this.ws = ws;
@@ -43,7 +42,6 @@ var Client = function(server, ws, id) {
     self.ws.send(JSON.stringify(obj));
   };
 
-  server.log(['client'], Util.format('client %d created', this.id));
 };
 
 module.exports = Client;

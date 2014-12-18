@@ -12,19 +12,13 @@ var Util = require('util');
  */
 
 var internals = {
-  server: null
 };
 
 /*
  * Api code
  */
 
-function Conductor(server, id, updateCallback) {
-  if (internals.server === null) {
-   internals.server = server;
-  }
-
-  internals.server.log(['conductor'], Util.format('conductor #%d created', id));
+function Conductor(id, updateCallback) {
 
   this.updateClient = function() {
     this.updateCallback();

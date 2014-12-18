@@ -26,8 +26,7 @@ var createRange = function(begin, end) {
 var internals = {
   moodTypes: ['mellow','indifferent','violent'],
   defaultHue: 0,
-  hues: createRange(0,360),
-  server: null
+  hues: createRange(0,360)
 };
 
 /*
@@ -62,10 +61,7 @@ var convertRange = function(inputLow, inputHigh, input) {
   return val;
 }
 
-function Performer(server, id, updateCallback) {
-  if (internals.server === null) {
-    internals.server = server;
-  }
+function Performer(id, updateCallback) {
   var self = this;
   this.id = id;
   this.updateCallback = updateCallback;
@@ -76,8 +72,6 @@ function Performer(server, id, updateCallback) {
   this.altColor = opposingColor(this.color);
   this.motionData = {};
   this.userAgent = '';
-
-  internals.server.log(['performer'], Util.format('performer #%d created', id));
 
   this.updateClient = function() {
     this.updateCallback();

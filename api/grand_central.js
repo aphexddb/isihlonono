@@ -28,10 +28,12 @@ var internals = {
 */
 
 
-// THIS IS REPLACED WHEN A CONDUCTOR CONNECTS
-internals.updateConductor = function() {
-  internals.server.log(['grand_central'], 'no conductor exists, unable to update the conductor');
+var noopFunc = function() {
+  // NOOP
 };
+
+// THIS IS REPLACED WHEN A CONDUCTOR CONNECTS
+internals.updateConductor = noopFunc;
 
 // handle arrival of a conductor
 var conductorArrival = function(ws, clientId, userAgent) {
@@ -53,7 +55,8 @@ var conductorArrival = function(ws, clientId, userAgent) {
   };
 
   // create a new conductor
-  internals.conductor = new Conductor(internals.server, clientId, internals.updateConductor);
+  internals.conductor = new Conductor(clientId, internals.updateConductor);
+  internals.server.log(['grand_central'], Util.format('conductor #%d created', internals.conductor.id));
 
   // initial conductor data update
   internals.updateConductor();
@@ -71,12 +74,16 @@ var conductorArrival = function(ws, clientId, userAgent) {
 // handle arrival of a performer
 var performerArrival = function(ws, clientId, userAgent) {
   // create new performer
-  var p = new Performer(internals.server, clientId, function() {
+  var p = new Performer(clientId, function() {
     internals.clients[clientId].send({
       event: 'performer',
       data: p
     });
   });
+
+  //internals.server.log(['grand_central'], Util.format('performer #%d created', p.id));
+  internals.server.log(['grand_central'], Util.format('client #%d is now a performer (%s)', clientId, userAgent));
+
   internals.performers[clientId] = p;
   internals.performers[clientId].setUserAgent(userAgent);
   internals.clients[clientId].setPerformer(p);
@@ -121,7 +128,7 @@ var start = function(server) {
     internals.server.log(['grand_central'], Util.format('ws client #%d connected', thisId));
 
     // add a new client
-    internals.clients[thisId] = new Client(internals.server, ws, thisId);
+    internals.clients[thisId] = new Client(ws, thisId);
 
     // utility method to remove a client neatly
     this.deleteClient = function(clientId) {
@@ -137,16 +144,14 @@ var start = function(server) {
         }
 
         delete internals.performers[p.id];
-        internals.server.log(['grand_central'], Util.format('performer #%d destroyed', p.id));
+        //internals.server.log(['grand_central'], Util.format('performer #%d destroyed', p.id));
       }
 
       // if client is a conductor, delete the conductor and disable callback
       if (internals.conductor !== null && internals.conductor.id !== undefined) {
         if (internals.conductor.id == clientId) {
-          internals.updateConductor = function() {
-            // noop
-          };
-          internals.server.log(['grand_central'], Util.format('client #%d was the conductor, conductor was destroyed', clientId));
+          internals.updateConductor = noopFunc;
+          internals.server.log(['grand_central'], Util.format('client #%d was the conductor! conductor updates stopped', clientId));
           internals.conductor = null;
         }
       }
@@ -168,17 +173,17 @@ var start = function(server) {
         case 'arrival':
           switch(obj['data']['type']) {
             case 'conductor':
-              internals.server.log(['grand_central'], 'a conductor has arrived');
+              internals.server.log(['grand_central'], Util.format('a conductor has arrived (client #%d)', thisId));
               conductorArrival(ws, thisId, obj['data']['ua']);
               internals.updateConductor();
               break;
             case 'performer':
-              internals.server.log(['grand_central'], 'a performer has arrived');
+              internals.server.log(['grand_central'], Util.format('a performer has arrived (client #%d)', thisId));
               performerArrival(ws, thisId, obj['data']['ua']);
               internals.updateConductor();
               break;
             default:
-              internals.server.log(['grand_central'], Util.format('Unknown arrival: %s (client %s)', obj['data']['type'], thisId));
+              internals.server.log(['grand_central'], Util.format('unknown arrival of %s (client #%s)', obj['data']['type'], thisId));
           }
           break;
 
