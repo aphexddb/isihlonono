@@ -33,6 +33,65 @@ internals.updateConductor = function() {
   internals.server.log(['grand_central'], 'no conductor exists, unable to update the conductor');
 };
 
+// handle arrival of a conductor
+var conductorArrival = function(ws, clientId, userAgent) {
+
+  // overwrite callback to update the conductor with current state of performers
+  internals.updateConductor = function() {
+    try {
+      ws.send(JSON.stringify({
+        event: 'performers',
+        data: {
+          performers: internals.performers,
+          channels: Channel.outputs()
+        }
+      }));
+    }
+    catch (e) {
+      internals.server.log(['grand_central'], Util.format('error updating conductor: %s', e));
+    }
+  };
+
+  // create a new conductor
+  internals.conductor = new Conductor(internals.server, clientId, internals.updateConductor);
+
+  // initial conductor data update
+  internals.updateConductor();
+
+  // replace existing conductor
+  internals.server.log(['grand_central'], Util.format('The conductor is now client #%d (%s)', clientId, userAgent));
+
+  // activate the conductor UI
+  ws.send(JSON.stringify({
+    event: 'conductorReady',
+    data: null
+  }));
+};
+
+// handle arrival of a performer
+var performerArrival = function(ws, clientId, userAgent) {
+  // create new performer
+  var p = new Performer(internals.server, clientId, function() {
+    internals.clients[clientId].send({
+      event: 'performer',
+      data: p
+    });
+  });
+  internals.performers[clientId] = p;
+  internals.performers[clientId].setUserAgent(userAgent);
+  internals.clients[clientId].setPerformer(p);
+
+  // allocate channel to performer
+  var channelNumber = Channel.getOpenChannel();
+  if (channelNumber > -1) {
+    p.setChannel(Channel.get(channelNumber));
+    internals.server.log(['grand_central'], Util.format('output channel %d has been assigned', channelNumber));
+  }
+
+  // update client with the initial performer data
+  p.updateClient();
+};
+
 // start websocket server
 var start = function(server) {
   internals.server = server;
@@ -51,7 +110,6 @@ var start = function(server) {
 
     internals.server.log(['grand_central'], 'ws running on http://'+wss._server.address().address+':'+wss._server.address().port);
   });
-
 
   // init websocket on each client connection
   wss.on('connection', function(ws) {
@@ -106,99 +164,38 @@ var start = function(server) {
       var obj = JSON.parse(message);
       switch(obj['event']) {
 
-        case 'performerOnline':
-          internals.server.log(['grand_central'], Util.format('ws client #%d wants to be a performer (%s)', thisId, obj['event']));
-
-          // create new performer
-          var p = new Performer(internals.server, thisId, function() {
-            internals.clients[thisId].send({
-              event: 'performer',
-              data: p
-            });
-          });
-          internals.performers[thisId] = p;
-          internals.performers[thisId].setUserAgent(obj['data']['ua']);
-          internals.clients[thisId].setPerformer(p);
-
-          // allocate first avilable channel to performer (if any channels are open)
-          self.channelNumber = Channel.getOpenChannel();
-          if (self.channelNumber > -1) {
-            this.channel = new Channel.get(self.channelNumber);
-            p.setChannel(this.channel);
-            internals.server.log(['grand_central'], Util.format('output channel %d has been assigned', self.channelNumber));
+        // Handle arrivals of new clients
+        case 'arrival':
+          switch(obj['data']['type']) {
+            case 'conductor':
+              internals.server.log(['grand_central'], 'a conductor has arrived');
+              conductorArrival(ws, thisId, obj['data']['ua']);
+              internals.updateConductor();
+              break;
+            case 'performer':
+              internals.server.log(['grand_central'], 'a performer has arrived');
+              performerArrival(ws, thisId, obj['data']['ua']);
+              internals.updateConductor();
+              break;
+            default:
+              internals.server.log(['grand_central'], Util.format('Unknown arrival: %s (client %s)', obj['data']['type'], thisId));
           }
-
-          // update client with the initial performer data
-          p.updateClient();
-
-          // let the conductor know
-          internals.updateConductor();
-
-          break;
-
-        // create new performer
-        case 'conductorOnline':
-
-          internals.server.log(['grand_central'], Util.format('ws client #%d wants to be a conductor (%s)', thisId, obj['event']));
-
-          if (internals.conductor != null) {
-            internals.server.log(['grand_central'], Util.format('client #%d is the current conductor, it will be replaced by client #%d', internals.conductor.id, thisId));
-          }
-
-          // overwrite callback to update the conductor with current state of performers
-          internals.updateConductor = function() {
-            try {
-              ws.send(JSON.stringify({
-                event: 'performers',
-                data: {
-                  performers: internals.performers,
-                  channels: Channel.outputs()
-                }
-              }));
-            }
-            catch (e) {
-              internals.server.log(['grand_central'], Util.format('error updating conductor: %s', e));
-            }
-          };
-
-          // create a new conductor
-          internals.conductor = new Conductor(internals.server, thisId, internals.updateConductor);
-          internals.updateConductor();
-
-          // replace existing conductor
-          internals.server.log(['grand_central'], Util.format('The conductor is now client #%d', thisId));
-
-          // activate the conductor UI
-          ws.send(JSON.stringify({
-            event: 'conductorReady',
-            data: null
-          }));
           break;
 
         // find a performer matching the channel and toffle its active status
         case 'toggleChannelOutput':
-          for (var pId in internals.performers) {
-            if(internals.performers.hasOwnProperty(pId)){
-              if (internals.performers[pId].channelNumber == obj['data']['channel']) {
-                // update the performer
-                var activeState = (obj['data']['active'] == "true" || obj['data']['active'] == true);
-                internals.performers[pId].toggleActive(activeState);
-                // update the conductor with new state
-                internals.updateConductor();
-                break;
-              }
-            }
-          }
-
+          // update the performer
+          var activeState = (obj['data']['active'] == "true" || obj['data']['active'] == true);
+          internals.performers[obj['data']['performerId']].toggleActive(activeState);
+          internals.updateConductor();
           break;
 
-          // find a performer matching the channel and change its mood its active status
-          case 'changeMood':
-            // update the performer
-            internals.performers[obj['data']['performerId']].setMood(obj['data']['mood']);
-            // update the conductor with new state
-            internals.updateConductor();
-            break;
+        // find a performer matching the channel and change its mood its active status
+        case 'changeMood':
+          // update the performer
+          internals.performers[obj['data']['performerId']].setMood(obj['data']['mood']);
+          internals.updateConductor();
+          break;
 
         // handle touch data events
         case 'touch':

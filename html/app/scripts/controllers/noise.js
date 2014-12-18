@@ -2,8 +2,8 @@
 
 angular.module('isihlononoApp')
 
-.controller('NoiseCtrl', ['$scope','$rootScope', 'GrandCentralService',
-function ($scope, $rootScope, GrandCentralService) {
+.controller('NoiseCtrl', ['$scope','$rootScope', 'GrandCentralService', 'UA',
+function ($scope, $rootScope, GrandCentralService, UA) {
   $scope.conductorReady = false;
 
   // init 10 channels as objects to start
@@ -16,8 +16,11 @@ function ($scope, $rootScope, GrandCentralService) {
       if (online) {
         // Tell grand central conductor is ready
         GrandCentralService.send({
-          event: 'conductorOnline',
-          data: null
+          event: 'arrival',
+          data: {
+            type: 'conductor',
+            ua: UA.toString()
+          }
         });
       }
     });
@@ -82,11 +85,11 @@ function ($scope, $rootScope, GrandCentralService) {
   GrandCentralService.connect();
 
   // change the active state for a performer
-  $scope.setActive = function(channel, activeState) {
+  $scope.setActive = function(performerId, activeState) {
     GrandCentralService.send({
       event: 'toggleChannelOutput',
       data: {
-        channel: channel,
+        performerId: performerId,
         active: activeState
       }
     });

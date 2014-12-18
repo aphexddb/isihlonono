@@ -12,8 +12,9 @@ function ($scope, $rootScope, GrandCentralService, Motion, UA, Touch) {
 
       // tell conductor we are a performer
       GrandCentralService.send({
-        event: 'performerOnline',
+        event: 'arrival',
         data: {
+          type: 'performer',
           ua: UA.toString()
         }
       });
