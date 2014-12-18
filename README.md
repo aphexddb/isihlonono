@@ -36,6 +36,8 @@ Making noise one grain at a time.
 
     npm install
     npm start
+    
+Navigate to [http://localhost:8080/#/noise](http://localhost:8080/#/noise) to see the conductor screen, otherwise [http://localhost:8080](http://localhost:8080) to join as a audience performer.
 
 Note: the install step may take some time, especially on a slow connection.
 
