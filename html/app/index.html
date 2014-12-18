@@ -45,6 +45,15 @@
   <script src="bower_components/underscore/underscore.js"></script>
   <!-- endbower -->
   <script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
+  <script>
+    // create script tag to load socket.io from web server on 8080
+    // regardless of how this page is served
+    var head= document.getElementsByTagName('head')[0];
+    var script= document.createElement('script');
+    script.type= 'text/javascript';
+    script.src= 'http://' + window.location.hostname + ':8080/socket.io/socket.io.js';
+    head.appendChild(script);
+  </script>
   <!-- endbuild -->
 
   <!-- build:js({.tmp,app}) scripts/scripts.js -->

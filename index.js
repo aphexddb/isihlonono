@@ -5,6 +5,7 @@ var Util = require('util');
 var Server = require('./server');
 var Config = require('./config');
 var GrandCentral = require('./api/grand_central');
+var SocketIO = require("socket.io")
 
 console.log('isihlonono'.magenta.bold,'is about to make some'.magenta,'noise'.magenta.bold.underline,'!'.magenta);
 
@@ -12,6 +13,9 @@ Server.start(function () {
 
   // start upstream websocket server
   GrandCentral.start(Server);
+
+  // start upstream websocket server
+  var io = SocketIO.listen(Server.listener);
 
   /*
   // OSC server
