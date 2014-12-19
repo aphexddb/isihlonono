@@ -8,6 +8,7 @@ angular.module('isihlononoApp')
   // We return this object to anything injecting our service
   var Service = function() {
     var self = this;
+    this.online = true;
     var image;
     var canvas;
     var canvasWidth;
@@ -34,7 +35,7 @@ angular.module('isihlononoApp')
       return color;
     };
 
-    var detectJpegHeaderSize = function detectJpegHeaderSize(data) {
+    var detectJpegHeaderSize = function(data) {
       jpgHeaderLength = 417;
       for (var i = 0, l = data.length; i < l; i++) {
         if (data[i] == 0xFF && data[i+1] == 0xDA) {
@@ -135,15 +136,24 @@ angular.module('isihlononoApp')
 
 
     this.fuzz = function(varA, varB) {
-      varA = Math.abs(Math.floor(varA * 10));
-      varB = Math.abs(Math.floor(varB * 10));
+      if (self.online) {
+        
+        varA = Math.abs(Math.floor(varA * 10));
+        varB = Math.abs(Math.floor(varB * 10));
+        if (varA <= 1) {
+          varA = 0;
+        }
+        if (varB <= 1) {
+          varB = 0;
+        }
 
-      var glitchCopy = imgDataArr.slice();
-      for (var i = 0; i < varA; i++) {
-        glitchJpegBytes(glitchCopy);
+        var glitchCopy = imgDataArr.slice();
+        for (var i = 0; i < varA; i++) {
+          glitchJpegBytes(glitchCopy);
+        }
+
+        this.redraw(glitchCopy);
       }
-
-      this.redraw(glitchCopy);
     };
 
     this.glitch = function(imageSrc) {
@@ -155,6 +165,10 @@ angular.module('isihlononoApp')
         detectJpegHeaderSize(imgDataArr);
       };
       initialImage.src = imageSrc;
+    };
+
+    this.setOnline = function(onlineState) {
+      self.online = onlineState;
     };
 
   };

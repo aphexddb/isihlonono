@@ -1,5 +1,18 @@
 'use strict';
 
+////////////////////////////////
+// GHETTO hardcoded JS
+
+// hide toolbar
+window.scrollTo(0, 1);
+
+// This'll stop you being able to scroll your page at all, so you won't be able to see the 'grey area' at the top.
+document.ontouchmove = function(event){
+  event.preventDefault();
+};
+
+////////////////////////////////
+
 angular.module('isihlononoApp', [
   'ngAnimate',
   'ngCookies',
