@@ -67,7 +67,7 @@ function Performer(id, updateCallback) {
   this.updateCallback = updateCallback;
   this.channelNumber = -1;
   this.mood = internals.moodTypes[1];
-  this.active = false;
+  this.active = true;
   this.color = randomHue();
   this.altColor = opposingColor(this.color);
   this.motionData = {};

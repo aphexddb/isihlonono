@@ -28,10 +28,11 @@ function ($scope, $rootScope, GrandCentralService, Motion, UA, Touch) {
 
 }])
 
-.controller('ClientCtrl', ['$scope', 'GrandCentralService', 'Motion', 'Touch',
-function ($scope, GrandCentralService, Motion, Touch) {
+.controller('ClientCtrl', ['$scope', 'GrandCentralService', 'Motion', 'Touch', 'Glitch',
+function ($scope, GrandCentralService, Motion, Touch, Glitch) {
   $scope.performer = null;
   $scope.motionData = null;
+  /*
   var strokeStyle = 'hsla(360, 100%, 100%, 1)'; // black
 
   // circle object
@@ -65,6 +66,7 @@ function ($scope, GrandCentralService, Motion, Touch) {
       this.ctx.stroke();
     };
   };
+  */
 
   // websocket callback for all messages
   GrandCentralService.setOnMessageCallback(function(data) {
@@ -72,12 +74,14 @@ function ($scope, GrandCentralService, Motion, Touch) {
     if (data.event == 'performer') {
       $scope.$apply(function () {
         $scope.performer = data.data;
-        strokeStyle = 'hsla('+$scope.performer.altColor+', 100%, 50%, 1)';
+        //strokeStyle = 'hsla('+$scope.performer.altColor+', 100%, 50%, 1)';
 
         // enable data emisson once active
         if ($scope.performer.active) {
           Touch.setOnline(true);
           Motion.setOnline(true);
+          Glitch.init('glitchCanvas');
+          Glitch.glitch('images/zoku.jpg');
         }
       });
     }
@@ -91,9 +95,11 @@ function ($scope, GrandCentralService, Motion, Touch) {
   // connect to the conductor
   GrandCentralService.connect();
 
+  /*
   // draw initial circle
   var accelCircle = new Circle('gameCanvas');
   accelCircle.draw(0, 0);
+  */
 
   // subscribe to motion events
   Motion.setMotionCallback(function(motionData) {
@@ -102,16 +108,20 @@ function ($scope, GrandCentralService, Motion, Touch) {
       // update local scope with motion data
       $scope.motionData = motionData;
 
+      /*
       // magnify the values being sent to draw
       var moveTweak = 10;
       var sizeTweak = 5;
       accelCircle.draw((motionData[0] * moveTweak), (motionData[1] * moveTweak), (motionData[2] * sizeTweak));
+      */
 
       // send motion data to conductor
       GrandCentralService.send({
         event: 'motion',
         data: [motionData[0],motionData[1],motionData[2],motionData[3],motionData[4],motionData[5]]
       });
+
+      Glitch.fuzz(motionData[0], motionData[1]);
     });
   });
 
@@ -119,12 +129,11 @@ function ($scope, GrandCentralService, Motion, Touch) {
   Touch.setCallback(function(touchData) {
     $scope.$apply(function () {
       $scope.touch = touchData;
+    });
 
-      GrandCentralService.send({
-        event: 'touch',
-        data: [touchData.x, touchData.y, touchData.deltaX, touchData.deltaY, touchData.velocity]
-      });
-
+    GrandCentralService.send({
+      event: 'touch',
+      data: [touchData.x, touchData.y, touchData.deltaX, touchData.deltaY, touchData.velocity]
     });
   });
 
