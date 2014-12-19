@@ -36,7 +36,7 @@ Making noise one grain at a time.
 
     npm install
     npm start
-    
+
 Navigate to [http://localhost:8080/#/noise](http://localhost:8080/#/noise) to see the conductor screen, otherwise [http://localhost:8080](http://localhost:8080) to join as a audience performer.
 
 Note: the install step may take some time, especially on a slow connection.
@@ -105,6 +105,7 @@ Music
 
 Code
 
+* [Jpg glitching](https://github.com/snorpey/jpg-glitch/blob/develop/scripts/lib/glitch-canvas.js)
 * [Creating sound waves with JavaScript](http://js.do/blog/sound-waves-with-javascript/)
 * [supercollider](http://supercollider.github.io/)
 * [Lich.js](https://github.com/aphexddb/Lich.js)
